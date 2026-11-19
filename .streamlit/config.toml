@@ -1,0 +1,17 @@
+[theme]
+base = "light"
+primaryColor = "#1f3d33"
+backgroundColor = "#f7f4ee"
+secondaryBackgroundColor = "#fffdf9"
+textColor = "#191714"
+borderColor = "#e6dfd2"
+font = "Cairo:https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap"
+headingFont = "Amiri:https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap"
+baseRadius = "0.7rem"
+buttonRadius = "999px"
+linkUnderline = false
+paddingTop = "0rem"
+paddingBottom = "2rem"
+
+[server]
+headless = true
