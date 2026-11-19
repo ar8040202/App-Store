@@ -62,22 +62,52 @@ h3 { font-size: 22px !important; }
 [data-testid="stCaptionContainer"] { color: var(--muted) !important; font-size: 14px !important; }
 hr { border-color: var(--line) !important; }
 
-[data-testid="stButton"] button,
-[data-testid="stFormSubmitButton"] button {
+button[kind="secondary"],
+button[kind="primary"] {
+  min-height: 38px !important;
+  height: auto !important;
+  padding: 8px 16px !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  box-shadow: none !important;
+  transition: background 0.18s, border-color 0.18s, color 0.18s !important;
+}
+button[kind="secondary"] {
+  background: transparent !important;
+  color: var(--brand) !important;
+  border: 1px solid transparent !important;
+}
+button[kind="secondary"]:hover {
+  background: var(--brand-100) !important;
+  border-color: var(--brand-100) !important;
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-underline-offset: 5px;
+}
+button[kind="primary"] {
+  background: var(--gold) !important;
+  color: #241c0d !important;
+  border: 1px solid var(--gold) !important;
+}
+button[kind="primary"]:hover { background: #d8b25f !important; border-color: #d8b25f !important; }
+button:active { transform: scale(0.97) !important; }
+
+[data-testid="stFormSubmitButton"] button[kind="primary"] {
+  min-height: 46px !important;
+  padding: 10px 26px !important;
+  border-radius: 999px !important;
   background: var(--brand) !important;
   color: #f8f5ee !important;
-  border: 0 !important;
-  border-radius: 999px !important;
-  height: 48px !important;
-  padding: 0 24px !important;
-  font-weight: 700 !important;
+  border-color: var(--brand) !important;
+  box-shadow: 0 12px 24px -16px rgba(31, 61, 51, 0.9) !important;
   font-size: 14px !important;
-  box-shadow: 0 14px 30px -18px rgba(31, 61, 51, 0.9) !important;
-  transition: background 0.2s, transform 0.2s !important;
 }
-[data-testid="stButton"] button:hover,
-[data-testid="stFormSubmitButton"] button:hover { background: var(--brand-700) !important; }
-[data-testid="stButton"] button:active { transform: scale(0.97) !important; }
+[data-testid="stFormSubmitButton"] button[kind="primary"]:hover {
+  background: var(--brand-700) !important;
+  border-color: var(--brand-700) !important;
+}
 
 [data-testid="stTextInput"] input,
 [data-testid="stTextArea"] textarea,
@@ -327,7 +357,7 @@ def admin_gate() -> bool:
     with st.form("admin_login"):
         username = st.text_input("اسم المستخدم", value="admin")
         password = st.text_input("كلمة المرور", type="password")
-        if st.form_submit_button("دخول", width="stretch"):
+        if st.form_submit_button("دخول", type="primary", width="stretch"):
             with session_scope() as db:
                 admin = (
                     db.query(models.AdminUser)
@@ -387,7 +417,7 @@ def store_page(config: dict) -> None:
                     st.write(f"**{product.price} {currency}**")
                     st.caption("متوفر ✅" if product.stock > 0 else "نفد المخزون")
                     if product.stock > 0:
-                        if st.button("أضف للسلة", key=f"add_{product.id}", width="stretch"):
+                        if st.button("أضف للسلة", key=f"add_{product.id}", type="primary", width="stretch"):
                             if "cart" not in st.session_state:
                                 st.session_state.cart = {}
                             st.session_state.cart[product.id] = min(
@@ -464,7 +494,7 @@ def cart_page(config: dict) -> None:
                     row["name"] for row in payment_methods if row["id"] == code
                 ),
             )
-            submit = st.form_submit_button("تأكيد الطلب", width="stretch")
+            submit = st.form_submit_button("تأكيد الطلب", type="primary", width="stretch")
 
         if submit:
             try:
@@ -531,7 +561,7 @@ def orders_page() -> None:
                 format_func=lambda value: ORDER_STATUS_LABELS.get(value, value),
                 key=f"status_{order.id}",
             )
-            if st.button("حفظ الحالة", key=f"save_{order.id}", width="stretch"):
+            if st.button("حفظ الحالة", key=f"save_{order.id}", type="primary", width="stretch"):
                 with session_scope() as db:
                     update_order_status(
                         order.id,
@@ -577,7 +607,7 @@ def settings_page() -> None:
             target = left if index % 2 == 0 else right
             with target:
                 values[key] = st.text_input(label, value=str(config.get(key) or ""))
-        if st.form_submit_button("حفظ الإعدادات", width="stretch"):
+        if st.form_submit_button("حفظ الإعدادات", type="primary", width="stretch"):
             with session_scope() as db:
                 store_config.update_config(db, values)
             st.success("تم حفظ الإعدادات ✅")
