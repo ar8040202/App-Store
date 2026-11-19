@@ -519,84 +519,84 @@
       "id": 1,
       "name": "القاهرة",
       "fee": 50.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 1
     },
     {
       "id": 2,
       "name": "الجيزة",
       "fee": 50.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 2
     },
     {
       "id": 3,
       "name": "القليوبية",
       "fee": 60.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 3
     },
     {
       "id": 4,
       "name": "الإسكندرية",
       "fee": 60.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 4
     },
     {
       "id": 5,
       "name": "الدقهلية",
       "fee": 65.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 5
     },
     {
       "id": 6,
       "name": "الشرقية",
       "fee": 65.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 6
     },
     {
       "id": 7,
       "name": "الغربية",
       "fee": 65.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 7
     },
     {
       "id": 8,
       "name": "المنوفية",
       "fee": 65.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 8
     },
     {
       "id": 9,
       "name": "البحيرة",
       "fee": 65.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 9
     },
     {
       "id": 10,
       "name": "كفر الشيخ",
       "fee": 70.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 10
     },
     {
       "id": 11,
       "name": "دمياط",
       "fee": 70.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 11
     },
     {
       "id": 12,
       "name": "بورسعيد",
       "fee": 70.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 12
     },
     {
@@ -610,98 +610,98 @@
       "id": 14,
       "name": "السويس",
       "fee": 70.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 14
     },
     {
       "id": 15,
       "name": "الفيوم",
       "fee": 75.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 15
     },
     {
       "id": 16,
       "name": "بني سويف",
       "fee": 75.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 16
     },
     {
       "id": 17,
       "name": "المنيا",
       "fee": 80.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 17
     },
     {
       "id": 18,
       "name": "أسيوط",
       "fee": 80.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 18
     },
     {
       "id": 19,
       "name": "سوهاج",
       "fee": 85.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 19
     },
     {
       "id": 20,
       "name": "قنا",
       "fee": 90.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 20
     },
     {
       "id": 21,
       "name": "الأقصر",
       "fee": 90.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 21
     },
     {
       "id": 22,
       "name": "أسوان",
       "fee": 100.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 22
     },
     {
       "id": 23,
       "name": "البحر الأحمر",
       "fee": 100.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 23
     },
     {
       "id": 24,
       "name": "مطروح",
       "fee": 100.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 24
     },
     {
       "id": 25,
       "name": "شمال سيناء",
       "fee": 110.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 25
     },
     {
       "id": 26,
       "name": "جنوب سيناء",
       "fee": 110.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 26
     },
     {
       "id": 27,
       "name": "الوادي الجديد",
       "fee": 110.0,
-      "is_active": 0,
+      "is_active": 1,
       "sort_order": 27
     }
   ]
