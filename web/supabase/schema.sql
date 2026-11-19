@@ -102,6 +102,13 @@ alter table payment_methods enable row level security;
 alter table orders enable row level security;
 alter table order_items enable row level security;
 
+-- The app connects with the service_role key from the server only. New tables
+-- created via the SQL Editor do not inherit these grants automatically.
+grant all on all tables in schema public to service_role;
+grant usage, select on all sequences in schema public to service_role;
+alter default privileges in schema public grant all on tables to service_role;
+alter default privileges in schema public grant usage, select on sequences to service_role;
+
 create index if not exists idx_orders_created_at on orders (created_at desc);
 create index if not exists idx_order_items_order_id on order_items (order_id);
 create index if not exists idx_products_category on products (category_id);

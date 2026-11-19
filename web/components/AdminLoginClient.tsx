@@ -79,9 +79,7 @@ export default function AdminLoginClient({ next }: { next: string }) {
           </form>
 
           <div className="mt-8 rounded-2xl border border-dashed border-[var(--line)] bg-white/60 px-5 py-4 text-[11px] leading-6 text-[var(--muted)]">
-            للاستخدام المحلي: <span dir="ltr" className="font-bold text-[var(--ink)]">admin / admin123</span>
-            <br />
-            غيّر هذه البيانات من متغيرات البيئة قبل النشر.
+            هذه الصفحة مخصصة لصاحب المتجر فقط. بيانات الدخول محددة من إعدادات النشر.
           </div>
 
           <Link href="/" className="mt-6 block text-center text-xs font-bold text-[var(--brand)] underline underline-offset-4">
