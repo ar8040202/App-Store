@@ -80,7 +80,7 @@ python run.py
 
 ## النشر لايف (Render)
 
-> ⚠️ **Streamlit Cloud مش مناسب للمشروع ده.** المشروع عبارة عن FastAPI + واجهة HTML/JS، والـ Streamlit app القديم (`legacy_streamlit_app.py`) كان بيحاول يتصل بـ `127.0.0.1` جوه سيرفر Streamlit، وده طبيعي هيفشل. استخدم Render/Railway بدلًا منه.
+> ⚠️ **Streamlit Cloud مش بديل عن الـ Backend.** الموقع الأصلي FastAPI + HTML/JS، محتاج سيرفر زي Render. اللي على Streamlit (`streamlit_app.py`) مجرد واجهة/لوحة بتكلم الـ API عبر `API_BASE_URL`. لو وقّفت Render، الواجهة مش هتشغل.
 
 الطريقة الأسهل (Blueprint):
 
@@ -104,6 +104,24 @@ python run.py
 
 ---
 
+## واجهة Streamlit Cloud (اختياري)
+
+لو عايز رابط على `share.streamlit.io`، استخدم `streamlit_app.py` الموجود في جذر الـ repo:
+
+1. افتح https://share.streamlit.io → **New app** → اختار repo `ar8040202/App-Store`.
+2. **Main file path:** `streamlit_app.py`.
+3. من **App settings → Secrets** ضيف:
+   ```toml
+   API_BASE_URL = "https://aseel-store.onrender.com"
+   ```
+4. **Deploy**.
+
+الواجهة فيها: عرض المنتجات، تسجيل دخول الأدمن، عرض الطلبات وتغيير حالتها (الإلغاء بيرجّع المخزن)، وتعديل إعدادات المتجر.
+
+> Streamlit Cloud المجاني كمان بي نام بعد عدم استخدام، فأول فتح بياخد ثواني. والـ Backend لازم يفضل شغال على Render.
+
+---
+
 ## متغيرات البيئة
 
 | المتغير | الافتراضي | الوصف |
@@ -116,6 +134,7 @@ python run.py
 | `HOST` | `127.0.0.1` | `0.0.0.0` للوصول من أجهزة أخرى على نفس الشبكة |
 | `PORT` | `8050` | منفذ تشغيل الخادم (القيمة الافتراضية في `settings.py`) |
 | `RELOAD` | `0` | `1` لتشغيل إعادة التحميل التلقائي أثناء التطوير |
+| `API_BASE_URL` | `https://aseel-store.onrender.com` | رابط الـ Backend المستخدم من واجهة Streamlit |
 
 > المنفذ مكتوب مرة واحدة في `settings.py`، وملفات `start.bat` / `start-mobile.bat` بتقرأه منه. لتغييره: عدّل `PORT = 8050` في `settings.py` أو شغّل `set PORT=8051` قبل `python run.py`.
 
