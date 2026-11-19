@@ -12,8 +12,8 @@ IMG_DIR = STATIC_DIR / "img"
 UPLOAD_DIR = STATIC_DIR / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-STORE_NAME = "أصيل"
-STORE_NAME_EN = "ASEEL"
+STORE_NAME = "EMO STORE"
+STORE_NAME_EN = "EMO STORE"
 STORE_TAGLINE = "قطع مختارة بعناية، لتفاصيل تستحقها"
 CURRENCY = "ج.م"
 STORE_TIMEZONE = os.getenv("STORE_TIMEZONE", "Africa/Cairo")

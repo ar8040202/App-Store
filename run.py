@@ -21,5 +21,5 @@ from settings import HOST, PORT
 if __name__ == "__main__":
     reload_enabled = os.getenv("RELOAD", "0") == "1"
     local_host = "127.0.0.1" if HOST == "0.0.0.0" else HOST
-    print(f"\n  متجر أصيل شغال على: http://{local_host}:{PORT}\n")
+    print(f"\n  متجر EMO STORE شغال على: http://{local_host}:{PORT}\n")
     uvicorn.run("main:app", host=HOST, port=PORT, reload=reload_enabled)

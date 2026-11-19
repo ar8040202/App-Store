@@ -1,4 +1,4 @@
-# أصيل — ASEEL | متجر إلكتروني عربي
+# EMO STORE | متجر إلكتروني عربي
 
 متجر إلكتروني عربي احترافي (RTL) مبني بـ **FastAPI + SQLite**، بواجهة عميل كاملة ولوحة تحكم أدمن مدمجة، بدون أي خطوة build.
 
@@ -75,6 +75,29 @@ python run.py
 ```
 
 > غيّر كلمة المرور من صفحة الإعدادات بعد أول تشغيل، وغيّر `SECRET_KEY` في بيئة الإنتاج.
+
+---
+
+## النشر لايف (Render)
+
+> ⚠️ **Streamlit Cloud مش مناسب للمشروع ده.** المشروع عبارة عن FastAPI + واجهة HTML/JS، والـ Streamlit app القديم (`legacy_streamlit_app.py`) كان بيحاول يتصل بـ `127.0.0.1` جوه سيرفر Streamlit، وده طبيعي هيفشل. استخدم Render/Railway بدلًا منه.
+
+الطريقة الأسهل (Blueprint):
+
+1. ارفع آخر تعديلات للـ GitHub (لازم ملف `render.yaml` يكون في جذر الـ repo).
+2. افتح https://render.com → **New → Blueprint** → اختار الـ repo.
+3. Render هيقرأ `render.yaml` وينشئ خدمة اسمها `aseel-store` تلقائيًا.
+4. بعد ماDeploy يخلص، افتح الرابط اللي هيطلع لك:
+   - المتجر: `https://aseel-store.onrender.com/`
+   - لوحة التحكم: `https://aseel-store.onrender.com/admin`
+   - توثيق API: `https://aseel-store.onrender.com/api/docs`
+
+> لو اسم الخدمة اتاخد، غيّر `name` في `render.yaml` قبل الرفع.
+
+**مهم قبل النشر الفعلي:**
+- غيّر `ADMIN_PASSWORD` و `SECRET_KEY` من **Environment** في لوحة Render.
+- الخطة المجانية بتنام بعد فترة عدم استخدام، أول طلب بعدها بياخد ثواني.
+- قاعدة البيانات SQLite الحالية بتترجع للبيانات الافتراضية بعد إعادة النشر/التشغيل. لو عايز بيانات دائمة، هنضيف Postgres لاحقًا.
 
 ---
 

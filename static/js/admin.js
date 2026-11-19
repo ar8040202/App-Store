@@ -251,8 +251,8 @@ async function handleLogin(event) {
 }
 
 function applyStoreBranding() {
-  const name = store.info.name || "أصيل";
-  const nameEn = store.info.name_en || "ASEEL";
+  const name = store.info.name || "EMO STORE";
+  const nameEn = store.info.name_en || "EMO STORE";
 
   document.querySelectorAll("[data-store-name]").forEach((element) => {
     element.textContent = name;
@@ -275,7 +275,7 @@ function showLogin(message = "") {
   if (loginScreen) loginScreen.hidden = false;
   if (appEl) appEl.hidden = true;
   document.body.classList.remove("no-scroll", "sidebar-open");
-  document.title = `تسجيل الدخول | لوحة ${store.info.name || "أصيل"}`;
+  document.title = `تسجيل الدخول | لوحة ${store.info.name || "EMO STORE"}`;
   if (message) showLoginError(message);
   else hideLoginError();
   const password = document.getElementById("login-password");
@@ -350,7 +350,7 @@ async function renderView() {
   const meta = VIEW_META[view];
   if (pageTitle) pageTitle.textContent = meta.title;
   if (pageSubtitle) pageSubtitle.textContent = meta.subtitle;
-  document.title = `${meta.title} | لوحة ${store.info.name || "أصيل"}`;
+  document.title = `${meta.title} | لوحة ${store.info.name || "EMO STORE"}`;
 
   viewEl.innerHTML = loadingBlock();
   window.scrollTo({ top: 0, behavior: "smooth" });

@@ -1,4 +1,4 @@
-"""نقطة تشغيل متجر أصيل (FastAPI)."""
+"""نقطة تشغيل متجر EMO STORE (FastAPI)."""
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -46,7 +46,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=f"{STORE_NAME} Store API",
     version="2.0.0",
-    description="واجهة برمجة متجر أصيل: منتجات، طلبات، ولوحة تحكم.",
+    description="واجهة برمجة متجر EMO STORE: منتجات، طلبات، ولوحة تحكم.",
     lifespan=lifespan,
     docs_url="/api/docs",
     redoc_url=None,

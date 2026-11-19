@@ -4,8 +4,8 @@ import { icon } from "./icons.js";
 const CART_KEY = "aseel_cart_v1";
 
 const DEFAULT_INFO = {
-  name: "أصيل",
-  name_en: "ASEEL",
+  name: "EMO STORE",
+  name_en: "EMO STORE",
   tagline: "قطع مختارة بعناية",
   currency: "ج.م",
   timezone: "Africa/Cairo",

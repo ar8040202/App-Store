@@ -70,20 +70,20 @@ function navigate(hash) {
 }
 
 function setTitle(title) {
-  const name = store.info.name || "أصيل";
+  const name = store.info.name || "EMO STORE";
   document.title = title
     ? `${title} | ${name}`
     : `${name} | ${store.info.tagline || "قطع مختارة بعناية"}`;
 }
 
 function storeName() {
-  return store.info.name || "أصيل";
+  return store.info.name || "EMO STORE";
 }
 
 function applyBranding() {
   const info = store.info;
-  const name = info.name || "أصيل";
-  const nameEn = info.name_en || "ASEEL";
+  const name = info.name || "EMO STORE";
+  const nameEn = info.name_en || "EMO STORE";
 
   document.querySelectorAll("[data-store-name]").forEach((element) => {
     element.textContent = name;
@@ -523,7 +523,7 @@ async function renderHome() {
         <div class="hero-visual fade-up">
           <div class="hero-image">
             <img src="/static/img/hero-woman.jpg" alt="مجموعة ${escapeHtml(
-              store.info.name || "أصيل"
+              store.info.name || "EMO STORE"
             )} الجديدة" fetchpriority="high">
           </div>
           <div class="hero-float-card" id="hero-float">
