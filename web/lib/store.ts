@@ -20,6 +20,15 @@ const supabase =
 
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
+export const ADMIN_PASSWORD_HASH_KEY = "admin_password_hash";
+
+/** لا نرسل الهاش أبداً للصفحات العامة أو لعميل الإعدادات. */
+function stripSecret(values: Settings): Settings {
+  return Object.fromEntries(
+    Object.entries(values).filter(([key]) => key !== ADMIN_PASSWORD_HASH_KEY),
+  );
+}
+
 /** القيم القادمة من قاعدة البيانات القديمة مخزّنة كنصوص JSON (مثال: "\"EMO STORE\""). */
 export function decodeSetting(value: unknown): string {
   if (value === null || value === undefined) return "";
@@ -101,12 +110,14 @@ export async function getCatalog(): Promise<Catalog> {
     return {
       products: (products.data ?? []) as Product[],
       categories: (categories.data ?? []) as Category[],
-      settings: decodeSettings(
-        Object.fromEntries(
-          (settings.data ?? []).map((row: { key: string; value: string }) => [
-            row.key,
-            row.value,
-          ]),
+      settings: stripSecret(
+        decodeSettings(
+          Object.fromEntries(
+            (settings.data ?? []).map((row: { key: string; value: string }) => [
+              row.key,
+              row.value,
+            ]),
+          ),
         ),
       ),
       governorates: (governorates.data ?? []) as Governorate[],
@@ -117,7 +128,7 @@ export async function getCatalog(): Promise<Catalog> {
   return {
     products: clone(memory.products).filter((p) => p.is_active),
     categories: clone(memory.categories).filter((c) => c.is_active),
-    settings: clone(memory.settings),
+    settings: stripSecret(clone(memory.settings)),
     governorates: clone(memory.governorates).filter((g) => g.is_active),
     paymentMethods: clone(memory.paymentMethods).filter((p) => p.is_active),
   };
@@ -311,4 +322,28 @@ export async function updateOrderStatus(id: number, status: string): Promise<voi
     order.stock_restored = true;
   }
   order.status = status;
+}
+
+export async function getAdminPasswordHash(): Promise<string> {
+  if (supabase) {
+    const { data } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", ADMIN_PASSWORD_HASH_KEY)
+      .maybeSingle();
+    return data ? decodeSetting(data.value) : "";
+  }
+  return memory.settings[ADMIN_PASSWORD_HASH_KEY] ?? "";
+}
+
+export async function setAdminPasswordHash(value: string): Promise<void> {
+  if (supabase) {
+    const { error } = await supabase.from("settings").upsert(
+      { key: ADMIN_PASSWORD_HASH_KEY, value },
+      { onConflict: "key" },
+    );
+    if (error) throw new Error(error.message);
+  } else {
+    memory.settings[ADMIN_PASSWORD_HASH_KEY] = value;
+  }
 }

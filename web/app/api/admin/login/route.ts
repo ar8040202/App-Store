@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as { username?: string; password?: string };
-    if (!checkCredentials(body.username || "", body.password || "")) {
+    if (!(await checkCredentials(body.username || "", body.password || ""))) {
       return NextResponse.json({ error: "اسم المستخدم أو كلمة المرور غير صحيحة" }, { status: 401 });
     }
 
