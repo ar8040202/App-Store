@@ -1,0 +1,314 @@
+import { createClient } from "@supabase/supabase-js";
+import seed from "@/data/seed.json";
+import type {
+  Catalog,
+  Category,
+  CreateOrderInput,
+  Governorate,
+  Order,
+  PaymentMethod,
+  Product,
+  Settings,
+} from "@/lib/types";
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase =
+  supabaseUrl && supabaseKey
+    ? createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } })
+    : null;
+
+const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+
+/** القيم القادمة من قاعدة البيانات القديمة مخزّنة كنصوص JSON (مثال: "\"EMO STORE\""). */
+export function decodeSetting(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  if (typeof value !== "string") return String(value);
+  try {
+    const parsed = JSON.parse(value);
+    if (parsed && typeof parsed === "object") return JSON.stringify(parsed);
+    return String(parsed);
+  } catch {
+    return value;
+  }
+}
+
+function decodeSettings(values: Record<string, unknown>): Settings {
+  return Object.fromEntries(
+    Object.entries(values).map(([key, value]) => [key, decodeSetting(value)]),
+  );
+}
+
+type MemoryStore = {
+  products: Product[];
+  categories: Category[];
+  settings: Settings;
+  governorates: Governorate[];
+  paymentMethods: PaymentMethod[];
+  orders: Order[];
+};
+
+const memory: MemoryStore = {
+  products: clone(seed.products as Product[]),
+  categories: clone(seed.categories as Category[]),
+  settings: decodeSettings(seed.settings as Record<string, unknown>),
+  governorates: clone(seed.governorates as Governorate[]),
+  paymentMethods: clone(seed.paymentMethods as PaymentMethod[]),
+  orders: [],
+};
+
+export function imageSrc(url: string | null | undefined): string {
+  if (!url) return "/images/placeholder.svg";
+  if (url.startsWith("http") || url.startsWith("data:")) return url;
+  if (url.startsWith("/images/")) return url;
+  const file = url.split("/").pop();
+  return file ? `/images/${file}` : "/images/placeholder.svg";
+}
+
+export function money(value: number, currency = "ج.م"): string {
+  return `${Number(value).toLocaleString("en-US", {
+    maximumFractionDigits: 2,
+  })} ${currency}`;
+}
+
+export function categoryName(id: number | null): string {
+  return memory.categories.find((c) => c.id === id)?.name ?? "عام";
+}
+
+export async function getCatalog(): Promise<Catalog> {
+  if (supabase) {
+    const [products, categories, settings, governorates, paymentMethods] =
+      await Promise.all([
+        supabase.from("products").select("*").eq("is_active", true).order("id"),
+        supabase
+          .from("categories")
+          .select("*")
+          .eq("is_active", true)
+          .order("sort_order"),
+        supabase.from("settings").select("key,value"),
+        supabase
+          .from("shipping_governorates")
+          .select("*")
+          .eq("is_active", true)
+          .order("sort_order"),
+        supabase
+          .from("payment_methods")
+          .select("*")
+          .eq("is_active", true)
+          .order("sort_order"),
+      ]);
+
+    return {
+      products: (products.data ?? []) as Product[],
+      categories: (categories.data ?? []) as Category[],
+      settings: decodeSettings(
+        Object.fromEntries(
+          (settings.data ?? []).map((row: { key: string; value: string }) => [
+            row.key,
+            row.value,
+          ]),
+        ),
+      ),
+      governorates: (governorates.data ?? []) as Governorate[],
+      paymentMethods: (paymentMethods.data ?? []) as PaymentMethod[],
+    };
+  }
+
+  return {
+    products: clone(memory.products).filter((p) => p.is_active),
+    categories: clone(memory.categories).filter((c) => c.is_active),
+    settings: clone(memory.settings),
+    governorates: clone(memory.governorates).filter((g) => g.is_active),
+    paymentMethods: clone(memory.paymentMethods).filter((p) => p.is_active),
+  };
+}
+
+export async function getSettings(): Promise<Settings> {
+  const catalog = await getCatalog();
+  return catalog.settings;
+}
+
+export async function updateSettings(values: Settings): Promise<Settings> {
+  if (supabase) {
+    const rows = Object.entries(values).map(([key, value]) => ({ key, value }));
+    const { error } = await supabase.from("settings").upsert(rows, {
+      onConflict: "key",
+    });
+    if (error) throw new Error(error.message);
+  } else {
+    memory.settings = { ...memory.settings, ...values };
+  }
+  return values;
+}
+
+export async function createOrder(input: CreateOrderInput): Promise<Order> {
+  const catalog = await getCatalog();
+  const items: Order["items"] = [];
+  let subtotal = 0;
+
+  for (const line of input.items) {
+    if (!Number.isInteger(line.quantity) || line.quantity < 1) {
+      throw new Error("كمية غير صحيحة");
+    }
+    const product = catalog.products.find((p) => p.id === line.product_id);
+    if (!product) throw new Error("أحد المنتجات غير موجود");
+    if (product.stock < line.quantity) {
+      throw new Error(`الكمية غير متوفرة من ${product.name}`);
+    }
+    const lineTotal = product.price * line.quantity;
+    subtotal += lineTotal;
+    items.push({
+      product_id: product.id,
+      product_name: product.name,
+      image_url: product.image_url,
+      unit_price: product.price,
+      quantity: line.quantity,
+      line_total: lineTotal,
+    });
+  }
+
+  const fee = catalog.governorates.find((g) => g.name === input.governorate)?.fee ?? 0;
+  const now = Date.now();
+  const order: Order = {
+    id: now,
+    order_number: `EMO-${now.toString(36).toUpperCase()}`,
+    customer_name: input.customer_name,
+    customer_phone: input.customer_phone,
+    governorate: input.governorate,
+    city: input.city,
+    address: input.address,
+    notes: input.notes || null,
+    payment_method: input.payment_method,
+    payment_status: "pending",
+    subtotal,
+    shipping_fee: fee,
+    total: subtotal + fee,
+    status: "pending",
+    stock_restored: false,
+    created_at: new Date().toISOString(),
+    items,
+  };
+
+  if (supabase) {
+    const { data, error } = await supabase
+      .from("orders")
+      .insert({
+        order_number: order.order_number,
+        customer_name: order.customer_name,
+        customer_phone: order.customer_phone,
+        governorate: order.governorate,
+        city: order.city,
+        address: order.address,
+        notes: order.notes,
+        payment_method: order.payment_method,
+        payment_status: order.payment_status,
+        subtotal: order.subtotal,
+        shipping_fee: order.shipping_fee,
+        total: order.total,
+        status: order.status,
+        stock_restored: false,
+      })
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    order.id = data.id;
+
+    const { error: itemsError } = await supabase
+      .from("order_items")
+      .insert(items.map((item) => ({ ...item, order_id: order.id })));
+    if (itemsError) throw new Error(itemsError.message);
+
+    for (const line of input.items) {
+      const product = catalog.products.find((p) => p.id === line.product_id)!;
+      const { error: stockError } = await supabase
+        .from("products")
+        .update({ stock: Math.max(0, product.stock - line.quantity) })
+        .eq("id", product.id);
+      if (stockError) throw new Error(stockError.message);
+    }
+  } else {
+    memory.orders.unshift(clone(order));
+    for (const line of input.items) {
+      const product = memory.products.find((p) => p.id === line.product_id);
+      if (product) product.stock = Math.max(0, product.stock - line.quantity);
+    }
+  }
+
+  return order;
+}
+
+export async function findOrder(number: string, phone: string): Promise<Order | null> {
+  if (supabase) {
+    const { data } = await supabase
+      .from("orders")
+      .select("*, order_items(*)")
+      .ilike("order_number", number.trim())
+      .eq("customer_phone", phone.trim())
+      .maybeSingle();
+    return (data as Order) ?? null;
+  }
+  return (
+    memory.orders.find(
+      (o) =>
+        o.order_number.toLowerCase() === number.trim().toLowerCase() &&
+        o.customer_phone.replace(/\s+/g, "") === phone.replace(/\s+/g, ""),
+    ) ?? null
+  );
+}
+
+export async function listOrders(): Promise<Order[]> {
+  if (supabase) {
+    const { data } = await supabase
+      .from("orders")
+      .select("*, order_items(*)")
+      .order("created_at", { ascending: false });
+    return (data ?? []) as Order[];
+  }
+  return clone(memory.orders);
+}
+
+export async function updateOrderStatus(id: number, status: string): Promise<void> {
+  if (supabase) {
+    const { data: order } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (!order) throw new Error("الطلب غير موجود");
+
+    if (status === "cancelled" && !order.stock_restored) {
+      const { data: items } = await supabase
+        .from("order_items")
+        .select("*")
+        .eq("order_id", id);
+      for (const item of items ?? []) {
+        const { data: product } = await supabase
+          .from("products")
+          .select("stock")
+          .eq("id", item.product_id)
+          .single();
+        const { error: restoreError } = await supabase
+          .from("products")
+          .update({ stock: (product?.stock ?? 0) + item.quantity })
+          .eq("id", item.product_id);
+        if (restoreError) throw new Error(restoreError.message);
+      }
+      await supabase.from("orders").update({ stock_restored: true }).eq("id", id);
+    }
+
+    const { error } = await supabase.from("orders").update({ status }).eq("id", id);
+    if (error) throw new Error(error.message);
+    return;
+  }
+
+  const order = memory.orders.find((o) => o.id === id);
+  if (!order) throw new Error("الطلب غير موجود");
+  if (status === "cancelled" && !order.stock_restored) {
+    for (const item of order.items ?? []) {
+      const product = memory.products.find((p) => p.id === item.product_id);
+      if (product) product.stock += item.quantity;
+    }
+    order.stock_restored = true;
+  }
+  order.status = status;
+}

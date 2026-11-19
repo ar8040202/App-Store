@@ -1,0 +1,106 @@
+import Link from "next/link";
+import type { Settings } from "@/lib/types";
+
+function cleanLink(value: string | undefined, prefix: string): string {
+  const trimmed = (value || "").trim();
+  if (!trimmed || trimmed === "#") return "#";
+  return trimmed.startsWith("http") ? trimmed : `${prefix}${trimmed.replace(/^\+/, "")}`;
+}
+
+export default function Footer({ settings }: { settings: Settings }) {
+  const phone = settings.contact_phone || "+20 100 000 0000";
+  const email = settings.contact_email || "hello@emo.store";
+  const whatsapp = settings.whatsapp_number || phone;
+
+  return (
+    <footer className="mt-10 bg-[#0b1f19] text-[#cfd8d1]">
+      <div className="container-x py-16 sm:py-20">
+        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
+          <div>
+            <div className="flex items-center gap-3">
+              <span className="grid h-11 w-11 place-items-center rounded-[13px] bg-[var(--gold)] font-display text-2xl text-[#0b1f19]">
+                E
+              </span>
+              <span>
+                <strong className="block font-display text-2xl text-[#f7f2e7]">
+                  {settings.store_name || "EMO STORE"}
+                </strong>
+                <small className="block text-[9px] font-extrabold tracking-[0.26em] text-[#7b8c81]">
+                  {settings.store_name_en || "EMO STORE"}
+                </small>
+              </span>
+            </div>
+            <p className="mt-5 max-w-xs text-[13px] leading-8 text-[#94a49a]">
+              {settings.store_tagline ||
+                "قطع مختارة بعناية، لتفاصيل تستحقها. تجربة شراء بسيطة وآمنة من قلب مصر."}
+            </p>
+            <div className="mt-6 flex gap-2">
+              <a
+                href={cleanLink(settings.instagram_url, "https://instagram.com/")}
+                target="_blank"
+                rel="noreferrer"
+                className="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-[11px] font-bold transition hover:border-[var(--gold)] hover:text-[var(--gold)]"
+              >
+                IG
+              </a>
+              <a
+                href={cleanLink(settings.facebook_url, "https://facebook.com/")}
+                target="_blank"
+                rel="noreferrer"
+                className="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-[11px] font-bold transition hover:border-[var(--gold)] hover:text-[var(--gold)]"
+              >
+                FB
+              </a>
+              <a
+                href={cleanLink(whatsapp, "https://wa.me/")}
+                target="_blank"
+                rel="noreferrer"
+                className="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-[11px] font-bold transition hover:border-[var(--gold)] hover:text-[var(--gold)]"
+              >
+                WA
+              </a>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="mb-5 text-xs font-extrabold tracking-[0.18em] text-[#f7f2e7]">تسوّق</h4>
+            <Link href="/shop" className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]">كل المنتجات</Link>
+            <Link href="/shop?category=women" className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]">نسائي</Link>
+            <Link href="/shop?category=men" className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]">رجالي</Link>
+            <Link href="/shop?category=perfumes" className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]">العطور</Link>
+          </div>
+
+          <div>
+            <h4 className="mb-5 text-xs font-extrabold tracking-[0.18em] text-[#f7f2e7]">خدمة العملاء</h4>
+            <Link href="/track" className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]">تتبع طلبك</Link>
+            <Link href="/cart" className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]">سلة التسوق</Link>
+            <a href={`tel:${phone}`} className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]" dir="ltr">{phone}</a>
+            <a href={`mailto:${email}`} className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]" dir="ltr">{email}</a>
+          </div>
+
+          <div>
+            <h4 className="mb-5 text-xs font-extrabold tracking-[0.18em] text-[#f7f2e7]">تواصل معنا</h4>
+            <p className="text-[13px] leading-8 text-[#94a49a]">
+              {settings.store_address || "القاهرة، مصر"}
+              <br />
+              {settings.working_hours || "السبت – الخميس: 10 ص – 8 م"}
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <span className="rounded-lg border border-white/10 px-2.5 py-1.5 text-[10px] text-[#b9c5bc]">الدفع عند الاستلام</span>
+              <span className="rounded-lg border border-white/10 px-2.5 py-1.5 text-[10px] text-[#b9c5bc]">إنستاباي</span>
+              <span className="rounded-lg border border-white/10 px-2.5 py-1.5 text-[10px] text-[#b9c5bc]">محفظة إلكترونية</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-[11px] text-[#76887c]">
+          <span>© {new Date().getFullYear()} {settings.store_name || "EMO STORE"}. كل الحقوق محفوظة.</span>
+          <div className="flex items-center gap-5">
+            <span>صُنع بـ <span className="text-[var(--gold)]">♥</span> في مصر</span>
+            <Link href="/admin/login" className="transition hover:text-[var(--gold)]">لوحة التحكم</Link>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
