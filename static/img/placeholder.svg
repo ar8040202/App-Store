@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7f4ee"/>
+      <stop offset="1" stop-color="#eee7da"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="750" fill="url(#bg)"/>
+  <g fill="none" stroke="#c9bda6" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M300 250c-38 0-70 28-70 66 0 52 70 118 70 118s70-66 70-118c0-38-32-66-70-66Z"/>
+    <circle cx="300" cy="316" r="22"/>
+    <path d="M250 486h100"/>
+  </g>
+  <text x="300" y="560" text-anchor="middle" font-family="Cairo, Tahoma, sans-serif" font-size="26" font-weight="600" fill="#a89c88">أصيل</text>
+  <text x="300" y="594" text-anchor="middle" font-family="Cairo, Tahoma, sans-serif" font-size="15" letter-spacing="4" fill="#c1b6a2">ASEEL</text>
+</svg>
