@@ -1,14 +1,22 @@
-"""واجهة Streamlit للمتجر.
+"""متجر EMO STORE على Streamlit Cloud — بدون أي سيرفر خارجي.
 
-تعمل كـ واجهة أمامية بتتكلم مع الـ FastAPI API الموجود على Render (أو أي رابط تاني).
-اربط الرابط من Streamlit Secrets:
-
-    API_BASE_URL = "https://aseel-store.onrender.com"
+البيانات بتقرأ وتكتب مباشرة في SQLite الموجود داخل الـ repo.
+ملاحظة: Streamlit Cloud بيفرض نظام ملفات مؤقت، فالتعديلات بتفضل لحد إعادة النشر/التشغيل.
 """
-import os
+from contextlib import contextmanager
+from pathlib import Path
 
-import requests
 import streamlit as st
+
+import models
+import schemas
+import store_config
+from database import Base, SessionLocal, engine, ensure_schema
+from routers.admin import update_order_status
+from routers.orders import create_order
+from seed import seed_database
+from security import verify_password
+from settings import ORDER_STATUS_LABELS, STATIC_DIR
 
 st.set_page_config(
     page_title="EMO STORE",
@@ -21,7 +29,7 @@ st.markdown(
     """
     <style>
     .stApp, .stSidebar { direction: rtl; text-align: right; }
-    .stButton>button, .stTextInput>div>input, .stSelectbox>div>div {
+    .stButton>button, .stTextInput>div>input, .stNumberInput input {
         text-align: right;
     }
     .block-container { padding-top: 2rem; }
@@ -30,119 +38,107 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-STATUSES = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"]
-STATUS_LABELS = {
-    "pending": "قيد المراجعة",
-    "confirmed": "تم التأكيد",
-    "processing": "قيد التجهيز",
-    "shipped": "تم الشحن",
-    "delivered": "تم التسليم",
-    "cancelled": "ملغي",
-}
+STATUSES = list(ORDER_STATUS_LABELS.keys())
 
 
-def api_base() -> str:
-    """عنوان الـ Backend من Streamlit Secrets أو متغير البيئة."""
-    secret = None
+@st.cache_resource
+def init_database() -> bool:
+    Base.metadata.create_all(bind=engine)
+    ensure_schema()
+    with session_scope() as db:
+        seed_database(db)
+    return True
+
+
+@contextmanager
+def session_scope():
+    db = SessionLocal()
     try:
-        secret = st.secrets.get("API_BASE_URL")
-    except Exception:
-        pass
-    return (secret or os.getenv("API_BASE_URL") or "https://aseel-store.onrender.com").rstrip("/")
+        yield db
+    finally:
+        db.close()
 
 
-def image_url(path: str | None) -> str | None:
-    if not path:
+def product_image(product) -> str | None:
+    url = getattr(product, "image_url", None)
+    if not url:
         return None
-    if path.startswith("http://") or path.startswith("https://"):
-        return path
-    return f"{api_base()}{path}"
+    if url.startswith("http://") or url.startswith("https://"):
+        return url
+    relative = url.lstrip("/")
+    if relative.startswith("static/"):
+        relative = relative[len("static/") :]
+    path: Path = STATIC_DIR / relative
+    return str(path) if path.exists() else None
 
 
-def api(path: str, method: str = "GET", payload: dict | None = None, auth: bool = False):
-    headers = {}
-    if auth and st.session_state.get("token"):
-        headers["Authorization"] = f"Bearer {st.session_state.token}"
-
-    try:
-        response = requests.request(
-            method,
-            f"{api_base()}{path}",
-            headers=headers,
-            json=payload,
-            timeout=60,  # Render المجاني بياخد وقت عشان يصحى
-        )
-    except requests.exceptions.RequestException as exc:
-        st.error(f"تعذر الاتصال بالـ Backend. لو الخدمة نايمة استنى شوية وجرب تاني. ({exc})")
-        return None
-
-    if response.status_code == 401:
-        st.session_state.token = None
-        st.session_state.username = ""
-        st.error("انتهت الجلسة، سجّل دخول تاني.")
-        return None
-
-    if not response.ok:
-        try:
-            detail = response.json().get("detail", response.text)
-        except Exception:
-            detail = response.text
-        st.error(detail or "حصل خطأ غير متوقع.")
-        return None
-
-    try:
-        return response.json()
-    except Exception:
-        return response.text
+def error_text(exc: Exception) -> str:
+    detail = getattr(exc, "detail", None)
+    if isinstance(detail, list):
+        return " • ".join(str(item.get("msg", item)) if isinstance(item, dict) else str(item) for item in detail)
+    return str(detail or exc)
 
 
 def login_panel() -> None:
     with st.sidebar:
         st.markdown("---")
         st.subheader("دخول الأدمن")
-        if st.session_state.get("token"):
-            st.success(f"مسجّل كـ **{st.session_state.get('username', 'admin')}**")
-            if st.button("تسجيل الخروج", use_container_width=True):
-                st.session_state.token = None
-                st.session_state.username = ""
+        if st.session_state.get("admin"):
+            st.success(f"مسجّل كـ **{st.session_state.admin}**")
+            if st.button("تسجيل الخروج", width="stretch"):
+                st.session_state.admin = ""
                 st.rerun()
             return
 
-        with st.form("admin_login", clear_on_submit=False):
+        with st.form("admin_login"):
             username = st.text_input("اسم المستخدم", value="admin")
             password = st.text_input("كلمة المرور", type="password")
-            if st.form_submit_button("دخول", use_container_width=True):
-                result = api(
-                    "/api/admin/login",
-                    "POST",
-                    {"username": username, "password": password},
-                )
-                if result and result.get("access_token"):
-                    st.session_state.token = result["access_token"]
-                    st.session_state.username = result.get("username", username)
-                    st.success("تم تسجيل الدخول")
-                    st.rerun()
+            if st.form_submit_button("دخول", width="stretch"):
+                with session_scope() as db:
+                    admin = (
+                        db.query(models.AdminUser)
+                        .filter(models.AdminUser.username == username.strip())
+                        .first()
+                    )
+                    if admin and verify_password(password, admin.password_hash):
+                        st.session_state.admin = admin.username
+                        st.success("تم تسجيل الدخول")
+                        st.rerun()
+                    else:
+                        st.error("اسم المستخدم أو كلمة المرور غير صحيحة")
 
 
 def store_page() -> None:
-    info = api("/api/store-info") or {}
-    name = info.get("name", "EMO STORE")
-    currency = info.get("currency", "ج.م")
+    with session_scope() as db:
+        config = store_config.get_config(db)
+        currency = config["store_currency"]
 
-    st.title(name)
-    st.caption(info.get("tagline", ""))
+        st.title(config["store_name"])
+        st.caption(config["store_tagline"])
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric("العملة", currency)
-    col2.metric("المحافظات", len(info.get("governorates") or []))
-    col3.metric("طرق الدفع", len(info.get("payment_methods") or []))
+        category_rows = (
+            db.query(models.Category)
+            .filter(models.Category.is_active.is_(True))
+            .order_by(models.Category.sort_order, models.Category.id)
+            .all()
+        )
+        names = ["الكل"] + [row.name for row in category_rows]
+        selected = st.selectbox("القسم", names)
+        search = st.text_input("ابحث عن منتج")
+
+        query = db.query(models.Product).filter(models.Product.is_active.is_(True))
+        if selected != "الكل":
+            query = query.filter(models.Product.category_id == next(
+                (row.id for row in category_rows if row.name == selected), -1
+            ))
+        if search.strip():
+            query = query.filter(models.Product.name.contains(search.strip()))
+        products = query.order_by(models.Product.id.desc()).all()
 
     st.markdown("---")
-    st.subheader("المنتجات")
-    data = api("/api/products?page=1&page_size=24") or {}
-    products = data.get("items") or []
+    st.subheader(f"المنتجات ({len(products)})")
     if not products:
-        st.info("لا توجد منتجات لعرضها حاليًا.")
+        st.info("لا توجد منتجات مطابقة.")
         return
 
     for start in range(0, len(products), 3):
@@ -150,81 +146,187 @@ def store_page() -> None:
         for column, product in zip(columns, products[start : start + 3]):
             with column:
                 with st.container(border=True):
-                    picture = image_url(product.get("image_url"))
+                    picture = product_image(product)
                     if picture:
-                        st.image(picture, use_container_width=True)
-                    st.markdown(f"**{product.get('name', '')}**")
-                    st.write(f"{product.get('price', 0)} {currency}")
-                    stock = product.get("stock", 0)
-                    st.caption("متوفر" if stock and stock > 0 else "نفد المخزون")
+                        st.image(picture, width="stretch")
+                    st.markdown(f"**{product.name}**")
+                    st.write(f"{product.price} {currency}")
+                    st.caption("متوفر" if product.stock > 0 else "نفد المخزون")
+                    if product.stock > 0:
+                        if st.button("أضف للسلة", key=f"add_{product.id}", width="stretch"):
+                            if "cart" not in st.session_state:
+                                st.session_state.cart = {}
+                            cart = st.session_state.cart
+                            cart[product.id] = min(cart.get(product.id, 0) + 1, product.stock)
+                            st.toast("اتضاف للسلة 🛒")
 
-    st.caption(f"إجمالي المنتجات: {data.get('total', len(products))}")
+
+def cart_page() -> None:
+    st.title("السلة")
+    cart: dict[int, int] = st.session_state.get("cart", {})
+
+    with session_scope() as db:
+        config = store_config.get_config(db)
+        currency = config["store_currency"]
+        products = {
+            row.id: row
+            for row in db.query(models.Product)
+            .filter(models.Product.id.in_(cart.keys()))
+            .all()
+        }
+        governorates = store_config.public_governorates(db)
+        payment_methods = store_config.public_payment_methods(db)
+
+        if not products:
+            st.info("السلة فاضية. اختار منتجات من صفحة المتجر.")
+            return
+
+        st.markdown("---")
+        total = 0.0
+        for product_id, quantity in list(cart.items()):
+            product = products.get(product_id)
+            if not product:
+                cart.pop(product_id, None)
+                continue
+            col1, col2, col3 = st.columns([5, 2, 1])
+            with col1:
+                st.markdown(f"**{product.name}**")
+                st.caption(f"{product.price} {currency}")
+            with col2:
+                qty = st.number_input(
+                    "الكمية",
+                    min_value=1,
+                    max_value=max(1, product.stock),
+                    value=min(quantity, max(1, product.stock)),
+                    key=f"qty_{product_id}",
+                )
+                cart[product_id] = qty
+                total += product.price * qty
+            with col3:
+                if st.button("حذف", key=f"remove_{product_id}"):
+                    cart.pop(product_id, None)
+                    st.rerun()
+
+        st.subheader(f"الإجمالي: {total:,.2f} {currency}")
+
+        if not governorates:
+            st.error("الشحن غير متاح حاليًا.")
+            return
+        if not payment_methods:
+            st.error("لا توجد طرق دفع متاحة حاليًا.")
+            return
+
+        with st.form("checkout"):
+            customer_name = st.text_input("الاسم")
+            phone = st.text_input("رقم الهاتف (01012345678)")
+            governorate = st.selectbox("المحافظة", [row["name"] for row in governorates])
+            city = st.text_input("المدينة")
+            address = st.text_area("العنوان")
+            notes = st.text_area("ملاحظات (اختياري)")
+            payment = st.selectbox(
+                "طريقة الدفع",
+                [row["id"] for row in payment_methods],
+                format_func=lambda code: next(
+                    row["name"] for row in payment_methods if row["id"] == code
+                ),
+            )
+            submit = st.form_submit_button("تأكيد الطلب", width="stretch")
+
+        if submit:
+            try:
+                payload = schemas.OrderCreate(
+                    customer_name=customer_name,
+                    customer_phone=phone,
+                    governorate=governorate,
+                    city=city,
+                    address=address,
+                    notes=notes or None,
+                    payment_method=payment,
+                    items=[
+                        schemas.OrderItemIn(product_id=product_id, quantity=qty)
+                        for product_id, qty in cart.items()
+                    ],
+                )
+                order = create_order(payload, db)
+                st.session_state.cart = {}
+                st.success(f"تم إنشاء الطلب **{order.order_number}** ✅")
+                st.rerun()
+            except Exception as exc:
+                st.error(error_text(exc))
 
 
 def orders_page() -> None:
+    if not st.session_state.get("admin"):
+        st.warning("سجّل الدخول من الشريط الجانبي أولًا.")
+        return
+
     st.title("الطلبات")
     selected = st.selectbox(
         "تصفية حسب الحالة",
         ["الكل"] + STATUSES,
-        format_func=lambda value: STATUS_LABELS.get(value, value),
+        format_func=lambda value: ORDER_STATUS_LABELS.get(value, value),
     )
-    query = "/api/admin/orders?page=1&page_size=50"
-    if selected != "الكل":
-        query += f"&status={selected}"
 
-    data = api(query, auth=True) or {}
-    orders = data.get("items") or []
+    with session_scope() as db:
+        query = db.query(models.Order)
+        if selected != "الكل":
+            query = query.filter(models.Order.status == selected)
+        orders = query.order_by(models.Order.created_at.desc()).limit(100).all()
+
     if not orders:
         st.info("لا توجد طلبات مطابقة.")
         return
 
     for order in orders:
-        current = order.get("status", "pending")
-        label = f"#{order.get('order_number')} — {order.get('customer_name')} — {order.get('total')} {STATUS_LABELS.get(current, current)}"
+        label = (
+            f"#{order.order_number} — {order.customer_name} — "
+            f"{ORDER_STATUS_LABELS.get(order.status, order.status)}"
+        )
         with st.expander(label):
-            st.write(f"**الهاتف:** {order.get('customer_phone', '')}")
-            st.write(f"**العنوان:** {order.get('governorate', '')} / {order.get('city', '')} / {order.get('address', '')}")
-            st.write(f"**الدفع:** {order.get('payment_method', '')} — {order.get('payment_status', '')}")
+            st.write(f"**الهاتف:** {order.customer_phone}")
+            st.write(f"**العنوان:** {order.governorate} / {order.city} / {order.address}")
+            st.write(f"**الدفع:** {order.payment_method} — {order.payment_status}")
+            st.write(f"**الإجمالي:** {order.total}")
             st.markdown("**المنتجات:**")
-            for item in order.get("items") or []:
-                st.write(
-                    f"- {item.get('product_name', '')} × {item.get('quantity', 0)} "
-                    f"= {item.get('line_total', 0)}"
-                )
+            for item in order.items:
+                st.write(f"- {item.product_name} × {item.quantity} = {item.line_total}")
 
             new_status = st.selectbox(
                 "تغيير الحالة",
                 STATUSES,
-                index=STATUSES.index(current) if current in STATUSES else 0,
-                format_func=lambda value: STATUS_LABELS.get(value, value),
-                key=f"status_{order['id']}",
+                index=STATUSES.index(order.status) if order.status in STATUSES else 0,
+                format_func=lambda value: ORDER_STATUS_LABELS.get(value, value),
+                key=f"status_{order.id}",
             )
-            if st.button("حفظ الحالة", key=f"save_{order['id']}", use_container_width=True):
-                result = api(
-                    f"/api/admin/orders/{order['id']}/status",
-                    "PATCH",
-                    {"status": new_status},
-                    auth=True,
-                )
-                if result is not None:
-                    if new_status == "cancelled":
-                        st.success("تم إلغاء الطلب ورجوع الكميات للمخزن.")
-                    else:
-                        st.success("تم تحديث حالة الطلب.")
-                    st.rerun()
+            if st.button("حفظ الحالة", key=f"save_{order.id}", width="stretch"):
+                with session_scope() as db:
+                    update_order_status(
+                        order.id,
+                        schemas.OrderStatusUpdate(status=new_status),
+                        None,
+                        db,
+                    )
+                if new_status == "cancelled":
+                    st.success("تم الإلغاء ورجوع الكميات للمخزن ✅")
+                else:
+                    st.success("تم تحديث الحالة ✅")
+                st.rerun()
 
 
 def settings_page() -> None:
-    st.title("إعدادات المتجر")
-    settings = api("/api/admin/settings", auth=True)
-    if not settings:
+    if not st.session_state.get("admin"):
+        st.warning("سجّل الدخول من الشريط الجانبي أولًا.")
         return
 
+    st.title("إعدادات المتجر")
+    with session_scope() as db:
+        config = store_config.get_config(db)
+
     fields = [
-        ("اسم المتجر", "name"),
-        ("الاسم بالإنجليزية", "name_en"),
-        ("الشعار / الوصف", "tagline"),
-        ("العملة", "currency"),
+        ("اسم المتجر", "store_name"),
+        ("الاسم بالإنجليزية", "store_name_en"),
+        ("الشعار / الوصف", "store_tagline"),
+        ("العملة", "store_currency"),
         ("حساب إنستاباي", "instapay_handle"),
         ("رقم المحفظة", "wallet_number"),
         ("رقم الهاتف", "contact_phone"),
@@ -239,29 +341,29 @@ def settings_page() -> None:
     with st.form("store_settings"):
         values = {}
         for label, key in fields:
-            values[key] = st.text_input(label, value=str(settings.get(key) or ""))
-        if st.form_submit_button("حفظ الإعدادات", use_container_width=True):
-            result = api("/api/admin/settings", "PUT", values, auth=True)
-            if result is not None:
-                st.success("تم حفظ الإعدادات.")
-                st.rerun()
+            values[key] = st.text_input(label, value=str(config.get(key) or ""))
+        if st.form_submit_button("حفظ الإعدادات", width="stretch"):
+            with session_scope() as db:
+                store_config.update_config(db, values)
+            st.success("تم حفظ الإعدادات ✅")
+            st.rerun()
 
 
 def main() -> None:
-    if "token" not in st.session_state:
-        st.session_state.token = None
-    if "username" not in st.session_state:
-        st.session_state.username = ""
+    init_database()
+    if "admin" not in st.session_state:
+        st.session_state.admin = ""
+    if "cart" not in st.session_state:
+        st.session_state.cart = {}
 
     login_panel()
-
-    page = st.sidebar.radio("القائمة", ["المتجر", "الطلبات", "الإعدادات"])
-    if page != "المتجر" and not st.session_state.get("token"):
-        st.warning("سجّل الدخول من الشريط الجانبي أولًا.")
-        return
+    page = st.sidebar.radio("القائمة", ["المتجر", "السلة", "الطلبات", "الإعدادات"])
+    st.sidebar.caption("البيانات محفوظة داخل Streamlit وقد تُعاد للافتراضي بعد إعادة النشر.")
 
     if page == "المتجر":
         store_page()
+    elif page == "السلة":
+        cart_page()
     elif page == "الطلبات":
         orders_page()
     else:

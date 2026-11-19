@@ -78,47 +78,36 @@ python run.py
 
 ---
 
-## النشر لايف (Render)
+## النشر لايف على Streamlit Cloud (بدون Render)
 
-> ⚠️ **Streamlit Cloud مش بديل عن الـ Backend.** الموقع الأصلي FastAPI + HTML/JS، محتاج سيرفر زي Render. اللي على Streamlit (`streamlit_app.py`) مجرد واجهة/لوحة بتكلم الـ API عبر `API_BASE_URL`. لو وقّفت Render، الواجهة مش هتشغل.
+`streamlit_app.py` في جذر الـ repo هو نسخة **مستقلة تمامًا**: بيقرأ ويكتب في SQLite مباشرة، ومحتاج أي سيرفر خارجي.
 
-الطريقة الأسهل (Blueprint):
+1. ارفع التعديلات للـ GitHub.
+2. افتح https://share.streamlit.io → **New app** → اختار repo `ar8040202/App-Store`.
+3. **Branch:** `main` — **Main file path:** `streamlit_app.py`.
+4. **Deploy** (مفيش Secrets مطلوبة).
 
-1. ارفع آخر تعديلات للـ GitHub (لازم ملف `render.yaml` يكون في جذر الـ repo).
-2. افتح https://render.com → **New → Blueprint** → اختار الـ repo.
-3. Render هيقرأ `render.yaml` وينشئ خدمة اسمها `aseel-store` تلقائيًا.
-4. بعد ماDeploy يخلص، افتح الرابط اللي هيطلع لك:
-   - المتجر: `https://aseel-store.onrender.com/`
-   - لوحة التحكم: `https://aseel-store.onrender.com/admin`
-   - توثيق API: `https://aseel-store.onrender.com/api/docs`
+الواجهة فيها:
+- تصفح المنتجات والإضافة للسلة وإنشاء طلب.
+- تسجيل دخول الأدمن (نفس `admin / admin123` أو اللي غيّرته).
+- عرض الطلبات وتغيير حالتها — وإلغاء أي طلب بيرجّع الكميات للمخزن.
+- تعديل بيانات المتجر والتواصل والروابط.
 
-> لو اسم الخدمة اتاخد، غيّر `name` في `render.yaml` قبل الرفع.
+> ⚠️ Streamlit Cloud بيفرض نظام ملفات **مؤقت**: أي تعديلات (طلبات/إعدادات/صور مرفوعة) بتفضل لحد ما التطبيق يعمل Restart أو Redeploy، وبعدها يرجع يقرأ من نسخة `ecommerce.db` الموجودة في الـ repo. لو عايز بيانات دائمة، محتاج قاعدة بيانات خارجية (Postgres مثلًا).
 
-**مهم قبل النشر الفعلي:**
-- غيّر `ADMIN_PASSWORD` و `SECRET_KEY` من **Environment** في لوحة Render.
-- الخطة المجانية بتنام بعد فترة عدم استخدام، أول طلب بعدها بياخد 30–60 ثانية (دى طبيعية مش خطأ في الكود). الحلول:
-  - استنى شوية واعمل Refresh.
-  - شغّل Ping كل 5 دقائق من UptimeRobot على `https://aseel-store.onrender.com/api/health`.
-  - أو ترقّى لخطة Starter عشان الخدمة تفضل شغالة طول الوقت.
-- قاعدة البيانات SQLite الحالية بتترجع للبيانات الافتراضية بعد إعادة النشر/التشغيل. لو عايز بيانات دائمة، هنضيف Postgres لاحقًا.
+> ⚠️ الخطة المجانية كمان بتنام بعد عدم استخدام، فأول فتح بياخد ثواني. ده سلوك الاستضافة مش خطأ في الكود.
 
 ---
 
-## واجهة Streamlit Cloud (اختياري)
+## النشر على Render (اختياري — للموقع الأصلي FastAPI)
 
-لو عايز رابط على `share.streamlit.io`، استخدم `streamlit_app.py` الموجود في جذر الـ repo:
+لو حابب في يوم من الأيام تنشر الواجهة الأصلية HTML/JS مع الـ API:
 
-1. افتح https://share.streamlit.io → **New app** → اختار repo `ar8040202/App-Store`.
-2. **Main file path:** `streamlit_app.py`.
-3. من **App settings → Secrets** ضيف:
-   ```toml
-   API_BASE_URL = "https://aseel-store.onrender.com"
-   ```
-4. **Deploy**.
+1. افتح https://render.com → **New → Blueprint** → اختار الـ repo.
+2. Render هيقرأ `render.yaml` وينشئ خدمة `aseel-store`.
+3. روابط المتجر / الأدمن / التوثيق هتكون على `https://aseel-store.onrender.com`.
 
-الواجهة فيها: عرض المنتجات، تسجيل دخول الأدمن، عرض الطلبات وتغيير حالتها (الإلغاء بيرجّع المخزن)، وتعديل إعدادات المتجر.
-
-> Streamlit Cloud المجاني كمان بي نام بعد عدم استخدام، فأول فتح بياخد ثواني. والـ Backend لازم يفضل شغال على Render.
+> `render.yaml` مش مطلوب لـ Streamlit، وموجود فقط علشان الخيار ده.
 
 ---
 
@@ -134,7 +123,6 @@ python run.py
 | `HOST` | `127.0.0.1` | `0.0.0.0` للوصول من أجهزة أخرى على نفس الشبكة |
 | `PORT` | `8050` | منفذ تشغيل الخادم (القيمة الافتراضية في `settings.py`) |
 | `RELOAD` | `0` | `1` لتشغيل إعادة التحميل التلقائي أثناء التطوير |
-| `API_BASE_URL` | `https://aseel-store.onrender.com` | رابط الـ Backend المستخدم من واجهة Streamlit |
 
 > المنفذ مكتوب مرة واحدة في `settings.py`، وملفات `start.bat` / `start-mobile.bat` بتقرأه منه. لتغييره: عدّل `PORT = 8050` في `settings.py` أو شغّل `set PORT=8051` قبل `python run.py`.
 
