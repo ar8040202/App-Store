@@ -92,16 +92,16 @@ insert into settings (key, value) values ('store_currency', 'ج.م');
 insert into settings (key, value) values ('free_shipping_enabled', 'true');
 insert into settings (key, value) values ('free_shipping_threshold', '1500.0');
 insert into settings (key, value) values ('default_shipping_fee', '60.0');
-insert into settings (key, value) values ('instapay_handle', 'aseel.store@instapay');
+insert into settings (key, value) values ('instapay_handle', 'emo.store@instapay');
 insert into settings (key, value) values ('wallet_number', '0100 000 0000');
 insert into settings (key, value) values ('shipping_initialized', 'true');
 insert into settings (key, value) values ('payments_initialized', 'true');
-insert into settings (key, value) values ('contact_email', 'hello@aseel.store');
-insert into settings (key, value) values ('instagram_url', 'https://instagram.com/aseel.store');
+insert into settings (key, value) values ('contact_email', 'hello@emo.store');
+insert into settings (key, value) values ('instagram_url', 'https://instagram.com/emostore');
 insert into settings (key, value) values ('contact_phone', '+20 100 000 0000');
 insert into settings (key, value) values ('store_address', 'القاهرة، مصر');
 insert into settings (key, value) values ('working_hours', 'السبت – الخميس: 10 ص – 8 م');
-insert into settings (key, value) values ('facebook_url', 'https://facebook.com/aseel.store');
+insert into settings (key, value) values ('facebook_url', 'https://facebook.com/emostore');
 insert into settings (key, value) values ('whatsapp_number', '+20 100 000 0000');
 
 -- shipping_governorates: 27 rows
