@@ -95,10 +95,7 @@ export default function Footer({ settings }: { settings: Settings }) {
 
         <div className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-[11px] text-[#76887c]">
           <span>© {new Date().getFullYear()} {settings.store_name || "EMO STORE"}. كل الحقوق محفوظة.</span>
-          <div className="flex items-center gap-5">
-            <span>صُنع بـ <span className="text-[var(--gold)]">♥</span> في مصر</span>
-            <Link href="/admin/login" className="transition hover:text-[var(--gold)]">لوحة التحكم</Link>
-          </div>
+          <span>صُنع بـ <span className="text-[var(--gold)]">♥</span> في مصر</span>
         </div>
       </div>
     </footer>
