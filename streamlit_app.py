@@ -257,7 +257,7 @@ def render_header(config: dict, cart_count: int) -> None:
         </span>
       </div>
       <div class="emo-header-note">{escape(str(config.get('store_tagline') or ''))}</div>
-      <div class="emo-cart">🛒 السلة ({cart_count})</div>
+      <div class="emo-cart">السلة ({cart_count})</div>
     </div>
     """
     st.markdown(html, unsafe_allow_html=True)
@@ -332,12 +332,12 @@ def navigation() -> None:
     current = st.session_state.get("page", PAGES[0])
     for index, label in enumerate(PAGES):
         with columns[index]:
-            text = ("● " if label == current else "") + label
+            text = ("• " if label == current else "") + label
             if st.button(text, key=f"nav_{label}", width="stretch"):
                 st.session_state.page = label
                 st.rerun()
     with columns[-1]:
-        auth_label = "🚪 خروج" if st.session_state.get("admin") else "👤 دخول الأدمن"
+        auth_label = "تسجيل الخروج" if st.session_state.get("admin") else "دخول الأدمن"
         if st.button(auth_label, key="nav_auth", width="stretch"):
             if st.session_state.get("admin"):
                 st.session_state.admin = ""
