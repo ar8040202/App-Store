@@ -52,7 +52,7 @@ THEME = """
 html, body, [class*="css"] { font-family: "Cairo", "Segoe UI", Tahoma, sans-serif !important; }
 .stApp { background: var(--bg) !important; color: var(--ink) !important; direction: rtl; }
 [data-testid="stSidebar"], [data-testid="stHeader"], [data-testid="stBottomBlockContainer"] { display: none !important; }
-footer { visibility: hidden; }
+footer:not(.emo-footer) { visibility: hidden; }
 .block-container { max-width: 1240px !important; margin-inline: auto !important; padding: 0 24px 64px !important; }
 
 h1, h2, h3 { font-family: "Amiri", "Cairo", serif !important; color: var(--brand) !important; }
