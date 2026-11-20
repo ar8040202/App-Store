@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import AdminConfirmDialog from "@/components/AdminConfirmDialog";
 import AdminNotice from "@/components/AdminNotice";
+import { AdminGalleryField, AdminImageField } from "@/components/AdminImageUpload";
 import { imageSrc, money } from "@/lib/store";
 import type { Category, Product } from "@/lib/types";
 
@@ -292,18 +293,7 @@ export default function AdminProductsClient({
             </span>
           </label>
 
-          <div>
-            <span className="label">رابط الصورة</span>
-            <div className="flex items-center gap-4 rounded-2xl border border-[var(--line)] bg-[var(--brand-soft)]/30 p-3">
-              <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-white">
-                <img src={imageSrc(draft.image_url)} alt="" className="h-full w-full object-cover" />
-              </div>
-              <p className="text-[10px] leading-5 text-[var(--muted)]">
-                الصق رابط صورة كامل أو اكتب اسم ملف موجود داخل <span dir="ltr">public/images</span>.
-              </p>
-            </div>
-            <input dir="ltr" className="input mt-2 text-left" value={draft.image_url} onChange={(e) => set("image_url", e.target.value)} placeholder="https://… أو /images/product.jpg" />
-          </div>
+          <AdminImageField value={draft.image_url} onChange={(url) => set("image_url", url)} />
 
           <label className="block">
             <span className="label">وصف المنتج</span>
@@ -325,10 +315,7 @@ export default function AdminProductsClient({
             <span className="label">تفاصيل إضافية</span>
             <textarea className="input min-h-20 resize-y" value={draft.details} onChange={(e) => set("details", e.target.value)} placeholder="الخامة، القصة، العناية…" />
           </label>
-          <label className="block">
-            <span className="label">معرض الصور <span className="font-normal text-[var(--muted)]">— روابط مفصولة بفاصلة</span></span>
-            <input dir="ltr" className="input text-left" value={draft.gallery} onChange={(e) => set("gallery", e.target.value)} placeholder="https://…, https://…" />
-          </label>
+          <AdminGalleryField value={draft.gallery} onChange={(urls) => set("gallery", urls)} />
 
           <div className="space-y-2 rounded-xl border border-[var(--line)] p-4">
             <label className="flex items-center justify-between gap-3 text-xs font-bold">

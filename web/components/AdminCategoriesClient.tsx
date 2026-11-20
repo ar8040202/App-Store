@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import AdminConfirmDialog from "@/components/AdminConfirmDialog";
 import AdminNotice from "@/components/AdminNotice";
+import { AdminImageField } from "@/components/AdminImageUpload";
 import { imageSrc } from "@/lib/store";
 import type { Category } from "@/lib/types";
 
@@ -200,16 +201,11 @@ export default function AdminCategoriesClient({ initial }: { initial: Category[]
                 onChange={(e) => setDraft({ ...draft, sort_order: e.target.value })}
               />
             </label>
-            <label className="block">
-              <span className="label">رابط الصورة</span>
-              <input
-                dir="ltr"
-                className="input text-left"
-                value={draft.image_url}
-                onChange={(e) => setDraft({ ...draft, image_url: e.target.value })}
-                placeholder="/images/cat.jpg"
-              />
-            </label>
+            <AdminImageField
+              value={draft.image_url}
+              onChange={(url) => setDraft({ ...draft, image_url: url })}
+              label="صورة القسم"
+            />
           </div>
           <label className="block">
             <span className="label">الوصف</span>

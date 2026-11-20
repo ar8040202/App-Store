@@ -112,3 +112,8 @@ alter default privileges in schema public grant usage, select on sequences to se
 create index if not exists idx_orders_created_at on orders (created_at desc);
 create index if not exists idx_order_items_order_id on order_items (order_id);
 create index if not exists idx_products_category on products (category_id);
+
+-- صور المنتجات والأقسام اللي بتترفع من لوحة الأدمن (Public للقراءة، والرفع بالـ service role).
+insert into storage.buckets (id, name, public, file_size_limit)
+values ('product-images', 'product-images', true, 4194304)
+on conflict (id) do update set public = true, file_size_limit = 4194304;
