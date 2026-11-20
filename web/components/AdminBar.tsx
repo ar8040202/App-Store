@@ -22,6 +22,8 @@ export default function AdminBar() {
         </span>
         <nav className="flex items-center gap-1 rounded-full bg-white/5 p-1">
           <Link href="/admin/orders" className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${pathname === "/admin/orders" ? "bg-[var(--gold)] text-[#1b2a20]" : "hover:bg-white/10"}`}>الطلبات</Link>
+          <Link href="/admin/products" className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${pathname === "/admin/products" ? "bg-[var(--gold)] text-[#1b2a20]" : "hover:bg-white/10"}`}>المنتجات</Link>
+          <Link href="/admin/categories" className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${pathname === "/admin/categories" ? "bg-[var(--gold)] text-[#1b2a20]" : "hover:bg-white/10"}`}>الأقسام</Link>
           <Link href="/admin/settings" className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${pathname === "/admin/settings" ? "bg-[var(--gold)] text-[#1b2a20]" : "hover:bg-white/10"}`}>الإعدادات</Link>
           <Link href="/admin/password" className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${pathname === "/admin/password" ? "bg-[var(--gold)] text-[#1b2a20]" : "hover:bg-white/10"}`}>كلمة المرور</Link>
         </nav>

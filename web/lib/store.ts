@@ -347,3 +347,178 @@ export async function setAdminPasswordHash(value: string): Promise<void> {
     memory.settings[ADMIN_PASSWORD_HASH_KEY] = value;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Catalog management (admin)                                          */
+/* ------------------------------------------------------------------ */
+
+function normalizeSlug(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\u0600-\u06ff]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+async function nextId(table: "categories" | "products"): Promise<number> {
+  if (supabase) {
+    const { data } = await supabase
+      .from(table)
+      .select("id")
+      .order("id", { ascending: false })
+      .limit(1);
+    return Number(data?.[0]?.id ?? 0) + 1;
+  }
+  const rows = table === "categories" ? memory.categories : memory.products;
+  return Math.max(0, ...rows.map((row) => row.id)) + 1;
+}
+
+export type CategoryInput = {
+  id?: number;
+  name: string;
+  slug?: string;
+  description?: string | null;
+  image_url?: string | null;
+  sort_order?: number;
+  is_active?: boolean;
+};
+
+export async function listAdminCategories(): Promise<Category[]> {
+  if (supabase) {
+    const { data } = await supabase
+      .from("categories")
+      .select("*")
+      .order("sort_order")
+      .order("id");
+    return (data ?? []) as Category[];
+  }
+  return clone(memory.categories).sort(
+    (a, b) => Number(a.sort_order) - Number(b.sort_order) || a.id - b.id,
+  );
+}
+
+export async function saveCategory(input: CategoryInput): Promise<Category> {
+  const name = (input.name || "").trim();
+  if (!name) throw new Error("اسم القسم مطلوب");
+  const id = Number(input.id) || (await nextId("categories"));
+  const row: Category = {
+    id,
+    name,
+    slug: normalizeSlug(input.slug || name) || `category-${id}`,
+    description: input.description?.trim() || null,
+    image_url: input.image_url?.trim() || null,
+    sort_order: Number(input.sort_order ?? 0),
+    is_active: input.is_active !== false,
+  };
+
+  if (supabase) {
+    const { data, error } = await supabase
+      .from("categories")
+      .upsert(row, { onConflict: "id" })
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return data as Category;
+  }
+
+  const index = memory.categories.findIndex((item) => item.id === id);
+  if (index >= 0) memory.categories[index] = row;
+  else memory.categories.push(row);
+  return clone(row);
+}
+
+export async function deleteCategory(id: number): Promise<void> {
+  if (supabase) {
+    const { error } = await supabase.from("categories").delete().eq("id", id);
+    if (error) throw new Error(error.message);
+  } else {
+    memory.categories = memory.categories.filter((item) => item.id !== id);
+    for (const product of memory.products) {
+      if (product.category_id === id) product.category_id = null;
+    }
+  }
+}
+
+export type ProductInput = {
+  id?: number;
+  name: string;
+  slug?: string;
+  description?: string | null;
+  details?: string | null;
+  price: number;
+  compare_at_price?: number | null;
+  stock: number;
+  image_url?: string | null;
+  gallery?: string | null;
+  sizes?: string | null;
+  colors?: string | null;
+  category_id?: number | null;
+  is_active?: boolean;
+  is_featured?: boolean;
+  rating?: number | null;
+  reviews_count?: number | null;
+};
+
+export async function listAdminProducts(): Promise<Product[]> {
+  if (supabase) {
+    const { data } = await supabase.from("products").select("*").order("id");
+    return (data ?? []) as Product[];
+  }
+  return clone(memory.products).sort((a, b) => a.id - b.id);
+}
+
+export async function saveProduct(input: ProductInput): Promise<Product> {
+  const name = (input.name || "").trim();
+  const price = Number(input.price);
+  const stock = Number(input.stock);
+  if (!name) throw new Error("اسم المنتج مطلوب");
+  if (!Number.isFinite(price) || price < 0) throw new Error("السعر غير صحيح");
+  if (!Number.isInteger(stock) || stock < 0) {
+    throw new Error("الكمية يجب أن تكون رقماً صحيحاً");
+  }
+
+  const id = Number(input.id) || (await nextId("products"));
+  const row: Product = {
+    id,
+    name,
+    slug: normalizeSlug(input.slug || name) || `product-${id}`,
+    description: input.description?.trim() || null,
+    details: input.details?.trim() || null,
+    price,
+    compare_at_price: input.compare_at_price ? Number(input.compare_at_price) : null,
+    stock,
+    image_url: input.image_url?.trim() || null,
+    gallery: input.gallery?.trim() || null,
+    sizes: input.sizes?.trim() || null,
+    colors: input.colors?.trim() || null,
+    category_id: input.category_id ? Number(input.category_id) : null,
+    is_active: input.is_active !== false,
+    is_featured: input.is_featured === true,
+    rating: input.rating == null ? null : Number(input.rating),
+    reviews_count: input.reviews_count == null ? null : Number(input.reviews_count),
+  };
+
+  if (supabase) {
+    const { data, error } = await supabase
+      .from("products")
+      .upsert(row, { onConflict: "id" })
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return data as Product;
+  }
+
+  const index = memory.products.findIndex((item) => item.id === id);
+  if (index >= 0) memory.products[index] = row;
+  else memory.products.push(row);
+  return clone(row);
+}
+
+export async function deleteProduct(id: number): Promise<void> {
+  if (supabase) {
+    const { error } = await supabase.from("products").delete().eq("id", id);
+    if (error) throw new Error(error.message);
+  } else {
+    memory.products = memory.products.filter((item) => item.id !== id);
+  }
+}
