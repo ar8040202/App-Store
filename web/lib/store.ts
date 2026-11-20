@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import seed from "@/data/seed.json";
+import { deleteImages } from "@/lib/image-cleanup";
 import type {
   Catalog,
   Category,
@@ -373,6 +374,75 @@ async function nextId(table: "categories" | "products"): Promise<number> {
   return Math.max(0, ...rows.map((row) => row.id)) + 1;
 }
 
+const galleryUrls = (value: string | null | undefined): string[] =>
+  (value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+async function currentCategory(id: number): Promise<Category | null> {
+  if (supabase) {
+    const { data } = await supabase
+      .from("categories")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    return (data as Category) ?? null;
+  }
+  return memory.categories.find((item) => item.id === id) ?? null;
+}
+
+async function currentProduct(id: number): Promise<Product | null> {
+  if (supabase) {
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    return (data as Product) ?? null;
+  }
+  return memory.products.find((item) => item.id === id) ?? null;
+}
+
+/**
+ * تمسح صور الـ bucket اللي ما بقت مستخدمة في أي منتج أو قسم.
+ * بنفحص كل الجداول قبل الحذف عشان صورة مشتركة بين أكتر من منتج ما تتمسحش.
+ */
+async function cleanupUnusedImages(candidates: string[]): Promise<void> {
+  const urls = [...new Set(candidates.filter(Boolean))];
+  if (!urls.length) return;
+
+  try {
+    const referenced = new Set<string>();
+    if (supabase) {
+      const [{ data: products }, { data: categories }] = await Promise.all([
+        supabase.from("products").select("image_url,gallery"),
+        supabase.from("categories").select("image_url"),
+      ]);
+      for (const product of products ?? []) {
+        if (product.image_url) referenced.add(product.image_url);
+        for (const url of galleryUrls(product.gallery)) referenced.add(url);
+      }
+      for (const category of categories ?? []) {
+        if (category.image_url) referenced.add(category.image_url);
+      }
+    } else {
+      for (const product of memory.products) {
+        if (product.image_url) referenced.add(product.image_url);
+        for (const url of galleryUrls(product.gallery)) referenced.add(url);
+      }
+      for (const category of memory.categories) {
+        if (category.image_url) referenced.add(category.image_url);
+      }
+    }
+
+    const unused = urls.filter((url) => !referenced.has(url));
+    if (unused.length) await deleteImages(unused);
+  } catch {
+    // تعذّر حذف صورة قديمة مش لازم يفشل حفظ المنتج أو القسم.
+  }
+}
+
 export type CategoryInput = {
   id?: number;
   name: string;
@@ -401,6 +471,7 @@ export async function saveCategory(input: CategoryInput): Promise<Category> {
   const name = (input.name || "").trim();
   if (!name) throw new Error("اسم القسم مطلوب");
   const id = Number(input.id) || (await nextId("categories"));
+  const previous = await currentCategory(id);
   const row: Category = {
     id,
     name,
@@ -418,16 +489,19 @@ export async function saveCategory(input: CategoryInput): Promise<Category> {
       .select()
       .single();
     if (error) throw new Error(error.message);
+    await cleanupUnusedImages([previous?.image_url || ""]);
     return data as Category;
   }
 
   const index = memory.categories.findIndex((item) => item.id === id);
   if (index >= 0) memory.categories[index] = row;
   else memory.categories.push(row);
+  await cleanupUnusedImages([previous?.image_url || ""]);
   return clone(row);
 }
 
 export async function deleteCategory(id: number): Promise<void> {
+  const previous = await currentCategory(id);
   if (supabase) {
     const { error } = await supabase.from("categories").delete().eq("id", id);
     if (error) throw new Error(error.message);
@@ -437,6 +511,7 @@ export async function deleteCategory(id: number): Promise<void> {
       if (product.category_id === id) product.category_id = null;
     }
   }
+  await cleanupUnusedImages([previous?.image_url || ""]);
 }
 
 export type ProductInput = {
@@ -478,6 +553,7 @@ export async function saveProduct(input: ProductInput): Promise<Product> {
   }
 
   const id = Number(input.id) || (await nextId("products"));
+  const previous = await currentProduct(id);
   const row: Product = {
     id,
     name,
@@ -505,20 +581,33 @@ export async function saveProduct(input: ProductInput): Promise<Product> {
       .select()
       .single();
     if (error) throw new Error(error.message);
+    await cleanupUnusedImages([
+      previous?.image_url || "",
+      ...galleryUrls(previous?.gallery),
+    ]);
     return data as Product;
   }
 
   const index = memory.products.findIndex((item) => item.id === id);
   if (index >= 0) memory.products[index] = row;
   else memory.products.push(row);
+  await cleanupUnusedImages([
+    previous?.image_url || "",
+    ...galleryUrls(previous?.gallery),
+  ]);
   return clone(row);
 }
 
 export async function deleteProduct(id: number): Promise<void> {
+  const previous = await currentProduct(id);
   if (supabase) {
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) throw new Error(error.message);
   } else {
     memory.products = memory.products.filter((item) => item.id !== id);
   }
+  await cleanupUnusedImages([
+    previous?.image_url || "",
+    ...galleryUrls(previous?.gallery),
+  ]);
 }
