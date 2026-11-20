@@ -24,17 +24,6 @@ export default function Header({ storeName, storeNameEn }: Props) {
 
   return (
     <>
-      <div className="relative overflow-hidden bg-[#08291f] text-[#f4e9d2]">
-        <div className="container-x flex min-h-9 items-center justify-center gap-3 py-2 text-center text-[11px] font-semibold sm:text-xs">
-          <span className="hidden h-1 w-1 rounded-full bg-[var(--gold)] sm:block" />
-          <span>شحن مجاني للطلبات فوق 1,500 ج.م</span>
-          <span className="hidden h-1 w-1 rounded-full bg-[var(--gold)] sm:block" />
-          <span className="hidden sm:inline">الدفع عند الاستلام لكل المحافظات</span>
-          <span className="hidden h-1 w-1 rounded-full bg-[var(--gold)] sm:block" />
-          <span className="hidden md:inline">استرجاع مجاني خلال 14 يوم</span>
-        </div>
-      </div>
-
       <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[#f6f3ec]/85 backdrop-blur-xl">
         <div className="container-x flex h-[74px] items-center gap-4">
           <Link href="/" className="flex shrink-0 items-center gap-3">
