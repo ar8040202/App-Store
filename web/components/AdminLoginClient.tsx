@@ -65,12 +65,12 @@ export default function AdminLoginClient({ next }: { next: string }) {
 
           <form onSubmit={submit} className="mt-8 space-y-5">
             <div>
-              <label className="label">اسم المستخدم</label>
-              <input required dir="ltr" value={username} onChange={(e) => setUsername(e.target.value)} className="input text-left" placeholder="admin" autoComplete="username" />
+              <label className="label" htmlFor="admin-username">اسم المستخدم</label>
+              <input id="admin-username" required dir="ltr" value={username} onChange={(e) => setUsername(e.target.value)} className="input text-left" placeholder="admin" autoComplete="username" />
             </div>
             <div>
-              <label className="label">كلمة المرور</label>
-              <input required dir="ltr" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input text-left" placeholder="••••••••" autoComplete="current-password" />
+              <label className="label" htmlFor="admin-password">كلمة المرور</label>
+              <input id="admin-password" required dir="ltr" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input text-left" placeholder="••••••••" autoComplete="current-password" />
             </div>
             {error ? <p className="rounded-xl bg-red-50 px-4 py-3 text-xs font-bold text-[var(--danger)]">{error}</p> : null}
             <button type="submit" disabled={loading} className="btn-dark w-full">
@@ -82,7 +82,7 @@ export default function AdminLoginClient({ next }: { next: string }) {
             هذه الصفحة مخصصة لصاحب المتجر فقط. بيانات الدخول محددة من إعدادات النشر.
           </div>
 
-          <Link href="/" className="mt-6 block text-center text-xs font-bold text-[var(--brand)] underline underline-offset-4">
+          <Link href="/" className="mt-6 flex min-h-10 items-center justify-center text-center text-xs font-bold text-[var(--brand)] underline underline-offset-4">
             العودة للمتجر
           </Link>
         </div>

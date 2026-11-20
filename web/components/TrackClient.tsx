@@ -49,12 +49,12 @@ export default function TrackClient({ currency }: { currency: string }) {
       <form onSubmit={search} className="panel mx-auto mt-9 max-w-2xl">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label">رقم الطلب</label>
-            <input required dir="ltr" value={number} onChange={(e) => setNumber(e.target.value)} className="input text-left" placeholder="EMO-XXXXXXXX" />
+            <label className="label" htmlFor="track-order">رقم الطلب</label>
+            <input id="track-order" required dir="ltr" value={number} onChange={(e) => setNumber(e.target.value)} className="input text-left" placeholder="EMO-XXXXXXXX" />
           </div>
           <div>
-            <label className="label">رقم الهاتف</label>
-            <input required dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} className="input text-left" placeholder="01012345678" />
+            <label className="label" htmlFor="track-phone">رقم الهاتف</label>
+            <input id="track-phone" required dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} className="input text-left" placeholder="01012345678" />
           </div>
         </div>
         {error ? <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-xs font-bold text-[var(--danger)]">{error}</p> : null}
@@ -130,8 +130,8 @@ export default function TrackClient({ currency }: { currency: string }) {
       ) : null}
 
       <p className="mt-8 text-center text-xs text-[var(--muted)]">
-        محتاج مساعدة؟ <a href="https://wa.me/201000000000" target="_blank" rel="noreferrer" className="font-extrabold text-[var(--brand)] underline underline-offset-4">تواصل معنا</a>{" "}
-        أو <Link href="/shop" className="font-extrabold text-[var(--brand)] underline underline-offset-4">تصفّح المتجر</Link>
+        محتاج مساعدة؟ <a href="https://wa.me/201000000000" target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center font-extrabold text-[var(--brand)] underline underline-offset-4">تواصل معنا</a>{" "}
+        أو <Link href="/shop" className="inline-flex min-h-10 items-center font-extrabold text-[var(--brand)] underline underline-offset-4">تصفّح المتجر</Link>
       </p>
     </div>
   );

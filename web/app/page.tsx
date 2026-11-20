@@ -143,7 +143,7 @@ export default async function HomePage() {
             <span className="eyebrow">تصفّح حسب القسم</span>
             <h2 className="section-title mt-4">اختار ما يناسب ذوقك</h2>
           </div>
-          <Link href="/shop" className="text-xs font-extrabold text-[var(--brand)] underline underline-offset-4">
+          <Link href="/shop" className="inline-flex min-h-10 items-center text-xs font-extrabold text-[var(--brand)] underline underline-offset-4">
             عرض كل الأقسام
           </Link>
         </div>

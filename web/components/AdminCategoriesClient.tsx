@@ -275,7 +275,7 @@ export default function AdminCategoriesClient({ initial }: { initial: Category[]
                       type="button"
                       onClick={() => startEdit(item)}
                       aria-label={`تعديل ${item.name}`}
-                      className="grid h-8 w-8 place-items-center rounded-lg border border-[var(--line)] text-xs transition hover:border-[var(--brand)] hover:text-[var(--brand)]"
+                      className="grid h-10 w-10 place-items-center rounded-lg border border-[var(--line)] text-xs transition hover:border-[var(--brand)] hover:text-[var(--brand)]"
                     >
                       ✎
                     </button>
@@ -283,7 +283,7 @@ export default function AdminCategoriesClient({ initial }: { initial: Category[]
                       type="button"
                       onClick={() => setPendingDelete(item)}
                       aria-label={`حذف ${item.name}`}
-                      className="grid h-8 w-8 place-items-center rounded-lg border border-[var(--line)] text-xs transition hover:border-[var(--danger)] hover:text-[var(--danger)]"
+                      className="grid h-10 w-10 place-items-center rounded-lg border border-[var(--line)] text-xs transition hover:border-[var(--danger)] hover:text-[var(--danger)]"
                     >
                       🗑
                     </button>

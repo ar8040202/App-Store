@@ -112,7 +112,7 @@ body {
   .label { @apply mb-2 block text-xs font-bold; color: var(--ink); }
 
   .chip {
-    @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition;
+    @apply inline-flex min-h-10 items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition;
     background: #fff;
     border: 1px solid var(--line);
   }
@@ -177,3 +177,16 @@ body {
 .no-spinner::-webkit-outer-spin-button,
 .no-spinner::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .no-spinner { -moz-appearance: textfield; }
+
+/* لمس أفضل على الجوال ومنع iOS من تكبير الصفحة عند التركيز على الحقول */
+a, button, label, select, input[type="checkbox"], input[type="radio"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea {
+    font-size: 16px;
+  }
+  .input { min-height: 48px; }
+}

@@ -10,7 +10,7 @@ function cleanLink(value: string | undefined, prefix: string): string {
 }
 
 function FooterLink({ href, children }: { href: string; children: ReactNode }) {
-  const className = "mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]";
+  const className = "mb-1 flex min-h-10 items-center text-[13px] text-[#94a49a] hover:text-[var(--gold)]";
   if (href.startsWith("/")) {
     return <Link href={href} className={className}>{children}</Link>;
   }

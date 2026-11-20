@@ -392,7 +392,7 @@ export default function AdminProductsClient({
                         onClick={() => saveStock(product)}
                         disabled={savingStock === product.id}
                         title="حفظ الكمية"
-                        className="grid h-8 w-8 place-items-center rounded-lg bg-[var(--brand)] text-xs font-bold text-white transition hover:opacity-90 disabled:opacity-50"
+                        className="grid h-10 w-10 place-items-center rounded-lg bg-[var(--brand)] text-xs font-bold text-white transition hover:opacity-90 disabled:opacity-50"
                       >
                         ✓
                       </button>
@@ -405,8 +405,8 @@ export default function AdminProductsClient({
                   </div>
 
                   <div className="flex gap-2">
-                    <button type="button" onClick={() => startEdit(product)} aria-label={`تعديل ${product.name}`} className="grid h-8 w-8 place-items-center rounded-lg border border-[var(--line)] text-xs transition hover:border-[var(--brand)] hover:text-[var(--brand)]">✎</button>
-                    <button type="button" onClick={() => setPendingDelete(product)} aria-label={`حذف ${product.name}`} className="grid h-8 w-8 place-items-center rounded-lg border border-[var(--line)] text-xs transition hover:border-[var(--danger)] hover:text-[var(--danger)]">🗑</button>
+                    <button type="button" onClick={() => startEdit(product)} aria-label={`تعديل ${product.name}`} className="grid h-10 w-10 place-items-center rounded-lg border border-[var(--line)] text-xs transition hover:border-[var(--brand)] hover:text-[var(--brand)]">✎</button>
+                    <button type="button" onClick={() => setPendingDelete(product)} aria-label={`حذف ${product.name}`} className="grid h-10 w-10 place-items-center rounded-lg border border-[var(--line)] text-xs transition hover:border-[var(--danger)] hover:text-[var(--danger)]">🗑</button>
                   </div>
                 </div>
               );

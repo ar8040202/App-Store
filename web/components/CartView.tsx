@@ -143,12 +143,12 @@ export default function CartView({
                 <p className="mt-2 text-sm font-extrabold text-[var(--brand)]">{money(product.price, currency)}</p>
               </div>
               <div className="flex items-center gap-2 rounded-full border border-[var(--line)] p-1">
-                <button type="button" onClick={() => setQuantity(product.id, quantity - 1, product.stock)} className="grid h-8 w-8 place-items-center rounded-full hover:bg-[var(--gold-soft)]" aria-label="تقليل">−</button>
+                <button type="button" onClick={() => setQuantity(product.id, quantity - 1, product.stock)} className="grid h-10 w-10 place-items-center rounded-full hover:bg-[var(--gold-soft)]" aria-label="تقليل">−</button>
                 <span className="no-spinner w-8 text-center text-sm font-extrabold">{quantity}</span>
-                <button type="button" onClick={() => setQuantity(product.id, quantity + 1, product.stock)} disabled={quantity >= product.stock} className="grid h-8 w-8 place-items-center rounded-full hover:bg-[var(--gold-soft)] disabled:opacity-40" aria-label="زيادة">+</button>
+                <button type="button" onClick={() => setQuantity(product.id, quantity + 1, product.stock)} disabled={quantity >= product.stock} className="grid h-10 w-10 place-items-center rounded-full hover:bg-[var(--gold-soft)] disabled:opacity-40" aria-label="زيادة">+</button>
               </div>
               <p className="w-20 text-left text-sm font-extrabold">{money(product.price * quantity, currency)}</p>
-              <button type="button" onClick={() => remove(product.id)} className="text-[var(--danger)] hover:underline" aria-label="حذف">
+              <button type="button" onClick={() => remove(product.id)} className="grid h-10 w-10 place-items-center rounded-full text-[var(--danger)] hover:bg-red-50" aria-label="حذف">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
                 </svg>
@@ -168,30 +168,30 @@ export default function CartView({
           <h2 className="font-display text-2xl">بيانات الطلب</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="label">الاسم الكامل *</label>
-              <input required value={name} onChange={(e) => setName(e.target.value)} className="input" placeholder="مثال: أحمد محمد" />
+              <label className="label" htmlFor="checkout-name">الاسم الكامل *</label>
+              <input id="checkout-name" required value={name} onChange={(e) => setName(e.target.value)} className="input" placeholder="مثال: أحمد محمد" />
             </div>
             <div className="sm:col-span-2">
-              <label className="label">رقم الهاتف *</label>
-              <input required dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} className="input text-left" placeholder="01012345678" />
+              <label className="label" htmlFor="checkout-phone">رقم الهاتف *</label>
+              <input id="checkout-phone" required dir="ltr" value={phone} onChange={(e) => setPhone(e.target.value)} className="input text-left" placeholder="01012345678" />
             </div>
             <div>
-              <label className="label">المحافظة *</label>
-              <select required value={governorate} onChange={(e) => setGovernorate(e.target.value)} className="input cursor-pointer">
+              <label className="label" htmlFor="checkout-governorate">المحافظة *</label>
+              <select id="checkout-governorate" required value={governorate} onChange={(e) => setGovernorate(e.target.value)} className="input cursor-pointer">
                 {governorates.map((g) => <option key={g.id} value={g.name}>{g.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="label">المدينة *</label>
-              <input required value={city} onChange={(e) => setCity(e.target.value)} className="input" placeholder="المدينة" />
+              <label className="label" htmlFor="checkout-city">المدينة *</label>
+              <input id="checkout-city" required value={city} onChange={(e) => setCity(e.target.value)} className="input" placeholder="المدينة" />
             </div>
             <div className="sm:col-span-2">
-              <label className="label">العنوان بالتفصيل *</label>
-              <textarea required rows={2} value={address} onChange={(e) => setAddress(e.target.value)} className="input resize-none" placeholder="الشارع، رقم المبنى، علامة مميزة" />
+              <label className="label" htmlFor="checkout-address">العنوان بالتفصيل *</label>
+              <textarea id="checkout-address" required rows={2} value={address} onChange={(e) => setAddress(e.target.value)} className="input resize-none" placeholder="الشارع، رقم المبنى، علامة مميزة" />
             </div>
             <div className="sm:col-span-2">
-              <label className="label">ملاحظات (اختياري)</label>
-              <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} className="input resize-none" placeholder="أي تفاصيل تساعدنا في التوصيل" />
+              <label className="label" htmlFor="checkout-notes">ملاحظات (اختياري)</label>
+              <textarea id="checkout-notes" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} className="input resize-none" placeholder="أي تفاصيل تساعدنا في التوصيل" />
             </div>
             <div className="sm:col-span-2">
               <label className="label">طريقة الدفع *</label>
