@@ -2,6 +2,8 @@
 export const CONTENT_DEFAULTS: Record<string, string> = {
   marquee_items:
     "شحن مجاني فوق 1,500 ج.م\nدفع عند الاستلام\nقطع أصلية 100%\nاسترجاع خلال 14 يوم\nتوصيل لكل المحافظات",
+  trust_items:
+    "شحن لكل المحافظات | توصيل سريع وآمن\nالدفع عند الاستلام | بدون رسوم إضافية\nاسترجاع خلال 14 يوم | تسوّق براحة بال\nمنتجات أصلية | خامات تستحق البقاء",
   footer_about:
     "قطع مختارة بعناية، لتفاصيل تستحقها. تجربة شراء بسيطة وآمنة من قلب مصر.",
   footer_shop_title: "تسوّق",
@@ -21,6 +23,18 @@ export function contentLines(value: string | null | undefined): string[] {
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean);
+}
+
+export type ContentPair = { title: string; subtitle: string };
+
+/** كل سطر: العنوان | الوصف */
+export function contentPairs(value: string | null | undefined): ContentPair[] {
+  return contentLines(value)
+    .map((line) => {
+      const [title, subtitle] = line.split("|").map((part) => (part || "").trim());
+      return { title, subtitle };
+    })
+    .filter((pair) => pair.title);
 }
 
 export type ContentLink = { label: string; href: string };

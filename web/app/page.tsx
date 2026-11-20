@@ -1,6 +1,6 @@
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
-import { contentLines } from "@/lib/site-content";
+import { contentLines, contentPairs } from "@/lib/site-content";
 import { getCatalog, imageSrc, money } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +13,7 @@ export default async function HomePage() {
   const heroProduct = catalog.products[0];
   const heroImage = imageSrc(heroProduct?.image_url || "/images/hero-store.jpg");
   const marqueeItems = contentLines(catalog.settings.marquee_items);
+  const trustItems = contentPairs(catalog.settings.trust_items);
 
   return (
     <>
@@ -117,26 +118,23 @@ export default async function HomePage() {
       ) : null}
 
       {/* TRUST */}
-      <section className="container-x grid gap-6 py-12 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          ["شحن لكل المحافظات", "توصيل سريع وآمن"],
-          ["الدفع عند الاستلام", "بدون رسوم إضافية"],
-          ["استرجاع خلال 14 يوم", "تسوّق براحة بال"],
-          ["منتجات أصلية", "خامات تستحق البقاء"],
-        ].map(([title, sub]) => (
-          <div key={title} className="flex items-center gap-3 border-e border-[var(--line)] last:border-0 lg:px-4">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m5 13 4 4L19 7" />
-              </svg>
-            </span>
-            <div>
-              <strong className="block text-[13px]">{title}</strong>
-              <span className="block text-[11px] text-[var(--muted)]">{sub}</span>
+      {trustItems.length ? (
+        <section className="container-x grid gap-6 py-12 sm:grid-cols-2 lg:grid-cols-4">
+          {trustItems.map((item, index) => (
+            <div key={`${item.title}-${index}`} className="flex items-center gap-3 border-e border-[var(--line)] last:border-0 lg:px-4">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m5 13 4 4L19 7" />
+                </svg>
+              </span>
+              <div>
+                <strong className="block text-[13px]">{item.title}</strong>
+                <span className="block text-[11px] text-[var(--muted)]">{item.subtitle}</span>
+              </div>
             </div>
-          </div>
-        ))}
-      </section>
+          ))}
+        </section>
+      ) : null}
 
       {/* CATEGORIES */}
       <section className="container-x section">
