@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
+import { contentLines, contentLinks, fillPlaceholders } from "@/lib/site-content";
 import type { Settings } from "@/lib/types";
 
 function cleanLink(value: string | undefined, prefix: string): string {
@@ -7,10 +9,43 @@ function cleanLink(value: string | undefined, prefix: string): string {
   return trimmed.startsWith("http") ? trimmed : `${prefix}${trimmed.replace(/^\+/, "")}`;
 }
 
+function FooterLink({ href, children }: { href: string; children: ReactNode }) {
+  const className = "mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]";
+  if (href.startsWith("/")) {
+    return <Link href={href} className={className}>{children}</Link>;
+  }
+  const external = href.startsWith("http");
+  return (
+    <a
+      href={href}
+      className={className}
+      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+    >
+      {children}
+    </a>
+  );
+}
+
 export default function Footer({ settings }: { settings: Settings }) {
   const phone = settings.contact_phone || "+20 100 000 0000";
   const email = settings.contact_email || "hello@emo.store";
   const whatsapp = settings.whatsapp_number || phone;
+  const tokens = {
+    year: String(new Date().getFullYear()),
+    store: settings.store_name || "EMO STORE",
+    phone,
+    email,
+  };
+
+  const about = (settings.footer_about || "").trim();
+  const shopLinks = contentLinks(settings.footer_shop_links);
+  const supportLinks = contentLinks(settings.footer_support_links).map((link) => ({
+    ...link,
+    href: fillPlaceholders(link.href, tokens),
+  }));
+  const badges = contentLines(settings.footer_payment_badges);
+  const copyright = (settings.footer_copyright || "").trim();
+  const credit = (settings.footer_credit || "").trim();
 
   return (
     <footer className="mt-10 bg-[#0b1f19] text-[#cfd8d1]">
@@ -30,10 +65,9 @@ export default function Footer({ settings }: { settings: Settings }) {
                 </small>
               </span>
             </div>
-            <p className="mt-5 max-w-xs text-[13px] leading-8 text-[#94a49a]">
-              {settings.store_tagline ||
-                "قطع مختارة بعناية، لتفاصيل تستحقها. تجربة شراء بسيطة وآمنة من قلب مصر."}
-            </p>
+            {about ? (
+              <p className="mt-5 max-w-xs text-[13px] leading-8 text-[#94a49a]">{about}</p>
+            ) : null}
             <div className="mt-6 flex gap-2">
               <a
                 href={cleanLink(settings.instagram_url, "https://instagram.com/")}
@@ -63,40 +97,57 @@ export default function Footer({ settings }: { settings: Settings }) {
           </div>
 
           <div>
-            <h4 className="mb-5 text-xs font-extrabold tracking-[0.18em] text-[#f7f2e7]">تسوّق</h4>
-            <Link href="/shop" className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]">كل المنتجات</Link>
-            <Link href="/shop?category=women" className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]">نسائي</Link>
-            <Link href="/shop?category=men" className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]">رجالي</Link>
-            <Link href="/shop?category=perfumes" className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]">العطور</Link>
+            <h4 className="mb-5 text-xs font-extrabold tracking-[0.18em] text-[#f7f2e7]">
+              {settings.footer_shop_title || "تسوّق"}
+            </h4>
+            {shopLinks.map((link, index) => (
+              <FooterLink key={`${link.href}-${index}`} href={link.href}>
+                {link.label}
+              </FooterLink>
+            ))}
           </div>
 
           <div>
-            <h4 className="mb-5 text-xs font-extrabold tracking-[0.18em] text-[#f7f2e7]">خدمة العملاء</h4>
-            <Link href="/track" className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]">تتبع طلبك</Link>
-            <Link href="/cart" className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]">سلة التسوق</Link>
-            <a href={`tel:${phone}`} className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]" dir="ltr">{phone}</a>
-            <a href={`mailto:${email}`} className="mb-3 block text-[13px] text-[#94a49a] hover:text-[var(--gold)]" dir="ltr">{email}</a>
+            <h4 className="mb-5 text-xs font-extrabold tracking-[0.18em] text-[#f7f2e7]">
+              {settings.footer_support_title || "خدمة العملاء"}
+            </h4>
+            {supportLinks.map((link, index) => (
+              <FooterLink key={`${link.href}-${index}`} href={link.href}>
+                {link.label}
+              </FooterLink>
+            ))}
           </div>
 
           <div>
-            <h4 className="mb-5 text-xs font-extrabold tracking-[0.18em] text-[#f7f2e7]">تواصل معنا</h4>
+            <h4 className="mb-5 text-xs font-extrabold tracking-[0.18em] text-[#f7f2e7]">
+              {settings.footer_contact_title || "تواصل معنا"}
+            </h4>
             <p className="text-[13px] leading-8 text-[#94a49a]">
               {settings.store_address || "القاهرة، مصر"}
               <br />
               {settings.working_hours || "السبت – الخميس: 10 ص – 8 م"}
             </p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              <span className="rounded-lg border border-white/10 px-2.5 py-1.5 text-[10px] text-[#b9c5bc]">الدفع عند الاستلام</span>
-              <span className="rounded-lg border border-white/10 px-2.5 py-1.5 text-[10px] text-[#b9c5bc]">إنستاباي</span>
-              <span className="rounded-lg border border-white/10 px-2.5 py-1.5 text-[10px] text-[#b9c5bc]">محفظة إلكترونية</span>
-            </div>
+            {badges.length ? (
+              <div className="mt-5 flex flex-wrap gap-2">
+                {badges.map((badge, index) => (
+                  <span
+                    key={`${badge}-${index}`}
+                    className="rounded-lg border border-white/10 px-2.5 py-1.5 text-[10px] text-[#b9c5bc]"
+                  >
+                    {badge}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
         </div>
 
-        <div className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-[11px] text-[#76887c]">
-          <span>© {new Date().getFullYear()} {settings.store_name || "EMO STORE"}. كل الحقوق محفوظة.</span>
-          <span>صُنع بـ <span className="text-[var(--gold)]">♥</span> في مصر</span>
-        </div>
+        {(copyright || credit) ? (
+          <div className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-[11px] text-[#76887c]">
+            {copyright ? <span>{fillPlaceholders(copyright, tokens)}</span> : <span />}
+            {credit ? <span>{fillPlaceholders(credit, tokens)}</span> : null}
+          </div>
+        ) : null}
       </div>
     </footer>
   );

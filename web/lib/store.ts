@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import seed from "@/data/seed.json";
 import { deleteImages } from "@/lib/image-cleanup";
+import { CONTENT_DEFAULTS } from "@/lib/site-content";
 import type {
   Catalog,
   Category,
@@ -28,6 +29,11 @@ function stripSecret(values: Settings): Settings {
   return Object.fromEntries(
     Object.entries(values).filter(([key]) => key !== ADMIN_PASSWORD_HASH_KEY),
   );
+}
+
+/** تكمل الإعدادات اللي لسه مش مخزّنة في قاعدة البيانات بالقيم الافتراضية. */
+function withContentDefaults(values: Settings): Settings {
+  return stripSecret({ ...CONTENT_DEFAULTS, ...values });
 }
 
 /** القيم القادمة من قاعدة البيانات القديمة مخزّنة كنصوص JSON (مثال: "\"EMO STORE\""). */
@@ -111,7 +117,7 @@ export async function getCatalog(): Promise<Catalog> {
     return {
       products: (products.data ?? []) as Product[],
       categories: (categories.data ?? []) as Category[],
-      settings: stripSecret(
+      settings: withContentDefaults(
         decodeSettings(
           Object.fromEntries(
             (settings.data ?? []).map((row: { key: string; value: string }) => [
@@ -129,7 +135,7 @@ export async function getCatalog(): Promise<Catalog> {
   return {
     products: clone(memory.products).filter((p) => p.is_active),
     categories: clone(memory.categories).filter((c) => c.is_active),
-    settings: stripSecret(clone(memory.settings)),
+    settings: withContentDefaults(clone(memory.settings)),
     governorates: clone(memory.governorates).filter((g) => g.is_active),
     paymentMethods: clone(memory.paymentMethods).filter((p) => p.is_active),
   };

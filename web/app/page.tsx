@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
+import { contentLines } from "@/lib/site-content";
 import { getCatalog, imageSrc, money } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +12,7 @@ export default async function HomePage() {
   const shown = featured.length >= 4 ? featured : catalog.products.slice(0, 8);
   const heroProduct = catalog.products[0];
   const heroImage = imageSrc(heroProduct?.image_url || "/images/hero-store.jpg");
+  const marqueeItems = contentLines(catalog.settings.marquee_items);
 
   return (
     <>
@@ -100,19 +102,19 @@ export default async function HomePage() {
       </section>
 
       {/* MOVING STRIP */}
-      <div className="overflow-hidden border-b border-[var(--line)] bg-[var(--gold-soft)] py-3">
-        <div className="marquee-track flex w-max gap-10 whitespace-nowrap text-[11px] font-extrabold tracking-[0.18em] text-[#6b5427]">
-          {Array.from({ length: 2 }).map((_, group) => (
-            <span key={group} className="flex gap-10">
-              <span>✦ شحن مجاني فوق 1,500 ج.م</span>
-              <span>✦ دفع عند الاستلام</span>
-              <span>✦ قطع أصلية 100%</span>
-              <span>✦ استرجاع خلال 14 يوم</span>
-              <span>✦ توصيل لكل المحافظات</span>
-            </span>
-          ))}
+      {marqueeItems.length ? (
+        <div className="overflow-hidden border-b border-[var(--line)] bg-[var(--gold-soft)] py-3">
+          <div className="marquee-track flex w-max gap-10 whitespace-nowrap text-[11px] font-extrabold tracking-[0.18em] text-[#6b5427]">
+            {Array.from({ length: 2 }).map((_, group) => (
+              <span key={group} className="flex gap-10">
+                {marqueeItems.map((item, index) => (
+                  <span key={`${group}-${index}`}>✦ {item}</span>
+                ))}
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {/* TRUST */}
       <section className="container-x grid gap-6 py-12 sm:grid-cols-2 lg:grid-cols-4">

@@ -3,7 +3,16 @@
 import { useState } from "react";
 import type { Settings } from "@/lib/types";
 
-const GROUPS: { title: string; hint: string; fields: { key: string; label: string; dir?: string }[] }[] = [
+type Field = {
+  key: string;
+  label: string;
+  dir?: string;
+  multiline?: boolean;
+  rows?: number;
+  hint?: string;
+};
+
+const GROUPS: { title: string; hint: string; fields: Field[] }[] = [
   {
     title: "هوية المتجر",
     hint: "الاسم والوصف اللي هيظهروا في الهيدر والفوتر.",
@@ -41,6 +50,56 @@ const GROUPS: { title: string; hint: string; fields: { key: string; label: strin
       { key: "wallet_number", label: "رقم المحفظة", dir: "ltr" },
     ],
   },
+  {
+    title: "الشريط المتحرك",
+    hint: "النصوص اللي بتتحرك في شريط الصفحة الرئيسية. سيب الخانة فاضية لإخفاء الشريط.",
+    fields: [
+      {
+        key: "marquee_items",
+        label: "عبارات الشريط",
+        multiline: true,
+        rows: 5,
+        hint: "اكتب عبارة في كل سطر — هتظهر مسبوقة بـ ✦",
+      },
+    ],
+  },
+  {
+    title: "الفوتر",
+    hint: "عدّل عناوين الأعمدة والروابط والنصوص اللي بتظهر في آخر الصفحة.",
+    fields: [
+      { key: "footer_about", label: "نبذة المتجر", multiline: true, rows: 3 },
+      { key: "footer_shop_title", label: "عنوان عمود التسوّق" },
+      {
+        key: "footer_shop_links",
+        label: "روابط التسوّق",
+        multiline: true,
+        rows: 5,
+        hint: "كل سطر: العنوان | الرابط",
+      },
+      { key: "footer_support_title", label: "عنوان عمود خدمة العملاء" },
+      {
+        key: "footer_support_links",
+        label: "روابط خدمة العملاء",
+        multiline: true,
+        rows: 5,
+        hint: "كل سطر: العنوان | الرابط — وتقدر تستخدم {phone} و {email}",
+      },
+      { key: "footer_contact_title", label: "عنوان عمود التواصل" },
+      {
+        key: "footer_payment_badges",
+        label: "وسائل الدفع",
+        multiline: true,
+        rows: 4,
+        hint: "وسيلة في كل سطر",
+      },
+      {
+        key: "footer_copyright",
+        label: "حقوق النشر",
+        hint: "{year} و {store} بيتعوضوا تلقائياً",
+      },
+      { key: "footer_credit", label: "النص الأخير" },
+    ],
+  },
 ];
 
 export default function AdminSettingsClient({ initial }: { initial: Settings }) {
@@ -73,7 +132,9 @@ export default function AdminSettingsClient({ initial }: { initial: Settings }) 
       <div>
         <span className="eyebrow">إدارة المتجر</span>
         <h1 className="section-title mt-4">إعدادات المتجر</h1>
-        <p className="mt-2 text-sm text-[var(--muted)]">عدّل بيانات المتجر ووسائل التواصل والدفع من مكان واحد.</p>
+        <p className="mt-2 text-sm text-[var(--muted)]">
+          عدّل بيانات المتجر والشريط المتحرك والفوتر من مكان واحد.
+        </p>
       </div>
 
       <form onSubmit={save} className="mt-8 space-y-6">
@@ -83,14 +144,36 @@ export default function AdminSettingsClient({ initial }: { initial: Settings }) 
             <p className="mb-6 mt-1 text-[11px] text-[var(--muted)]">{group.hint}</p>
             <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
               {group.fields.map((field) => (
-                <label key={field.key}>
+                <label
+                  key={field.key}
+                  className={field.multiline ? "sm:col-span-2" : undefined}
+                >
                   <span className="label">{field.label}</span>
-                  <input
-                    dir={field.dir}
-                    value={values[field.key] ?? ""}
-                    onChange={(e) => setValues((current) => ({ ...current, [field.key]: e.target.value }))}
-                    className={`input ${field.dir === "ltr" ? "text-left" : ""}`}
-                  />
+                  {field.multiline ? (
+                    <textarea
+                      dir={field.dir}
+                      rows={field.rows ?? 4}
+                      value={values[field.key] ?? ""}
+                      onChange={(e) =>
+                        setValues((current) => ({ ...current, [field.key]: e.target.value }))
+                      }
+                      className={`input resize-y ${field.dir === "ltr" ? "text-left" : ""}`}
+                    />
+                  ) : (
+                    <input
+                      dir={field.dir}
+                      value={values[field.key] ?? ""}
+                      onChange={(e) =>
+                        setValues((current) => ({ ...current, [field.key]: e.target.value }))
+                      }
+                      className={`input ${field.dir === "ltr" ? "text-left" : ""}`}
+                    />
+                  )}
+                  {field.hint ? (
+                    <span className="mt-1.5 block text-[10px] text-[var(--muted)]">
+                      {field.hint}
+                    </span>
+                  ) : null}
                 </label>
               ))}
             </div>
