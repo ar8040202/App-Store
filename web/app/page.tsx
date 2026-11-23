@@ -11,7 +11,9 @@ export default async function HomePage() {
   const featured = catalog.products.filter((p) => p.is_featured).slice(0, 8);
   const shown = featured.length >= 4 ? featured : catalog.products.slice(0, 8);
   const heroProduct = catalog.products[0];
-  const heroImage = imageSrc(heroProduct?.image_url || "/images/hero-store.jpg");
+  const heroImage = imageSrc(
+    catalog.settings.hero_image_url || heroProduct?.image_url || "/images/hero-store.jpg",
+  );
   const marqueeItems = contentLines(catalog.settings.marquee_items);
   const trustItems = contentPairs(catalog.settings.trust_items);
 

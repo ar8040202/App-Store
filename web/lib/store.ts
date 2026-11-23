@@ -163,14 +163,32 @@ export async function getSettings(): Promise<Settings> {
 }
 
 export async function updateSettings(values: Settings): Promise<Settings> {
+  let previousHero: string | undefined;
   if (supabase) {
+    const { data: before } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "hero_image_url")
+      .maybeSingle();
+    previousHero = before?.value || undefined;
+
     const rows = Object.entries(values).map(([key, value]) => ({ key, value }));
     const { error } = await supabase.from("settings").upsert(rows, {
       onConflict: "key",
     });
     if (error) throw new Error(error.message);
   } else {
+    previousHero = memory.settings.hero_image_url || undefined;
     memory.settings = { ...memory.settings, ...values };
+  }
+
+  // لو اتغيرت صورة البانر، نمسح القديمة بس لو مش مستخدمة في منتج أو قسم تاني.
+  if (
+    Object.prototype.hasOwnProperty.call(values, "hero_image_url") &&
+    previousHero &&
+    previousHero !== (values.hero_image_url || undefined)
+  ) {
+    await cleanupUnusedImages([previousHero]);
   }
   return values;
 }

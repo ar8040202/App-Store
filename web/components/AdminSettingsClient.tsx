@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AdminImageField } from "@/components/AdminImageUpload";
 import type { Settings } from "@/lib/types";
 
 type Field = {
@@ -8,11 +9,24 @@ type Field = {
   label: string;
   dir?: string;
   multiline?: boolean;
+  image?: boolean;
   rows?: number;
   hint?: string;
 };
 
 const GROUPS: { title: string; hint: string; fields: Field[] }[] = [
+  {
+    title: "صورة الصفحة الرئيسية",
+    hint: "الصورة الكبيرة في أول الصفحة الرئيسية. لو مسحتها هتظهر صورة أول منتج تلقائياً.",
+    fields: [
+      {
+        key: "hero_image_url",
+        label: "صورة البانر الرئيسي",
+        image: true,
+        hint: "يفضّل صورة بالعرض والطول مناسبين للبانر (حوالي 4:5).",
+      },
+    ],
+  },
   {
     title: "هوية المتجر",
     hint: "الاسم والوصف اللي هيظهروا في الهيدر والفوتر.",
@@ -146,7 +160,7 @@ export default function AdminSettingsClient({ initial }: { initial: Settings }) 
         <span className="eyebrow">إدارة المتجر</span>
         <h1 className="section-title mt-4">إعدادات المتجر</h1>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          عدّل بيانات المتجر والشريط المتحرك والفوتر من مكان واحد.
+          عدّل صورة الصفحة الرئيسية وبيانات المتجر والشريط المتحرك والفوتر من مكان واحد.
         </p>
       </div>
 
@@ -156,39 +170,57 @@ export default function AdminSettingsClient({ initial }: { initial: Settings }) 
             <h2 className="font-display text-2xl text-[var(--brand)]">{group.title}</h2>
             <p className="mb-6 mt-1 text-[11px] text-[var(--muted)]">{group.hint}</p>
             <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
-              {group.fields.map((field) => (
-                <label
-                  key={field.key}
-                  className={field.multiline ? "sm:col-span-2" : undefined}
-                >
-                  <span className="label">{field.label}</span>
-                  {field.multiline ? (
-                    <textarea
-                      dir={field.dir}
-                      rows={field.rows ?? 4}
-                      value={values[field.key] ?? ""}
-                      onChange={(e) =>
-                        setValues((current) => ({ ...current, [field.key]: e.target.value }))
-                      }
-                      className={`input resize-y ${field.dir === "ltr" ? "text-left" : ""}`}
-                    />
-                  ) : (
-                    <input
-                      dir={field.dir}
-                      value={values[field.key] ?? ""}
-                      onChange={(e) =>
-                        setValues((current) => ({ ...current, [field.key]: e.target.value }))
-                      }
-                      className={`input ${field.dir === "ltr" ? "text-left" : ""}`}
-                    />
-                  )}
-                  {field.hint ? (
-                    <span className="mt-1.5 block text-[10px] text-[var(--muted)]">
-                      {field.hint}
-                    </span>
-                  ) : null}
-                </label>
-              ))}
+              {group.fields.map((field) => {
+                const className = field.image || field.multiline ? "sm:col-span-2" : undefined;
+                if (field.image) {
+                  return (
+                    <div key={field.key} className={className}>
+                      <AdminImageField
+                        value={values[field.key] ?? ""}
+                        onChange={(url) =>
+                          setValues((current) => ({ ...current, [field.key]: url }))
+                        }
+                        label={field.label}
+                      />
+                      {field.hint ? (
+                        <span className="mt-1.5 block text-[10px] text-[var(--muted)]">
+                          {field.hint}
+                        </span>
+                      ) : null}
+                    </div>
+                  );
+                }
+                return (
+                  <label key={field.key} className={className}>
+                    <span className="label">{field.label}</span>
+                    {field.multiline ? (
+                      <textarea
+                        dir={field.dir}
+                        rows={field.rows ?? 4}
+                        value={values[field.key] ?? ""}
+                        onChange={(e) =>
+                          setValues((current) => ({ ...current, [field.key]: e.target.value }))
+                        }
+                        className={`input resize-y ${field.dir === "ltr" ? "text-left" : ""}`}
+                      />
+                    ) : (
+                      <input
+                        dir={field.dir}
+                        value={values[field.key] ?? ""}
+                        onChange={(e) =>
+                          setValues((current) => ({ ...current, [field.key]: e.target.value }))
+                        }
+                        className={`input ${field.dir === "ltr" ? "text-left" : ""}`}
+                      />
+                    )}
+                    {field.hint ? (
+                      <span className="mt-1.5 block text-[10px] text-[var(--muted)]">
+                        {field.hint}
+                      </span>
+                    ) : null}
+                  </label>
+                );
+              })}
             </div>
           </div>
         ))}
