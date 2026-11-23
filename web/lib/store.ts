@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import seed from "@/data/seed.json";
 import { deleteImages } from "@/lib/image-cleanup";
+import { shippingFeeFor } from "@/lib/shipping";
 import { CONTENT_DEFAULTS } from "@/lib/site-content";
 import type {
   Catalog,
@@ -193,6 +194,43 @@ export async function updateSettings(values: Settings): Promise<Settings> {
   return values;
 }
 
+/** كل المحافظات (حتى غير المفعّلة) للوحة الأدمن. */
+export async function listAdminGovernorates(): Promise<Governorate[]> {
+  if (supabase) {
+    const { data, error } = await supabase
+      .from("shipping_governorates")
+      .select("*")
+      .order("sort_order");
+    if (error) throw new Error(error.message);
+    return (data ?? []) as Governorate[];
+  }
+  return clone(memory.governorates).sort((a, b) => a.sort_order - b.sort_order);
+}
+
+export type GovernorateInput = { id: number; fee: number; is_active: boolean };
+
+/** تعديل رسوم الشحن وتفعيل/إيقاف كل محافظة على حدة. */
+export async function updateGovernorates(values: GovernorateInput[]): Promise<void> {
+  if (!values.length) return;
+  if (supabase) {
+    const { error } = await supabase
+      .from("shipping_governorates")
+      .upsert(
+        values.map((item) => ({ id: item.id, fee: item.fee, is_active: item.is_active })),
+        { onConflict: "id" },
+      );
+    if (error) throw new Error(error.message);
+  } else {
+    for (const item of values) {
+      const current = memory.governorates.find((g) => g.id === item.id);
+      if (current) {
+        current.fee = item.fee;
+        current.is_active = item.is_active;
+      }
+    }
+  }
+}
+
 export async function createOrder(input: CreateOrderInput): Promise<Order> {
   const catalog = await getCatalog();
   const items: Order["items"] = [];
@@ -219,7 +257,12 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
     });
   }
 
-  const fee = catalog.governorates.find((g) => g.name === input.governorate)?.fee ?? 0;
+  const fee = shippingFeeFor(subtotal, input.governorate, {
+    governorates: catalog.governorates,
+    freeShippingEnabled: catalog.settings.free_shipping_enabled !== "false",
+    freeShippingThreshold: Number(catalog.settings.free_shipping_threshold) || 1500,
+    defaultShippingFee: Number(catalog.settings.default_shipping_fee) || 0,
+  });
   const now = Date.now();
   const order: Order = {
     id: now,

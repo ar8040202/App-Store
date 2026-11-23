@@ -17,6 +17,7 @@
 | الطلبات | `/admin/orders` |
 | المنتجات والمخزون | `/admin/products` |
 | الأقسام | `/admin/categories` |
+| الشحن والمحافظات | `/admin/shipping` |
 | إعدادات المتجر | `/admin/settings` |
 | تغيير كلمة المرور | `/admin/password` |
 

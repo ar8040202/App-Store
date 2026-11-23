@@ -13,7 +13,9 @@ export default async function CartPage() {
       governorates={catalog.governorates}
       paymentMethods={catalog.paymentMethods}
       currency={catalog.settings.store_currency || "ج.م"}
+      freeShippingEnabled={catalog.settings.free_shipping_enabled !== "false"}
       freeShippingThreshold={Number(catalog.settings.free_shipping_threshold) || 1500}
+      defaultShippingFee={Number(catalog.settings.default_shipping_fee) || 0}
     />
   );
 }

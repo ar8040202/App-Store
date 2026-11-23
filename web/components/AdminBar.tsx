@@ -25,6 +25,7 @@ export default function AdminBar() {
             { href: "/admin/orders", label: "الطلبات" },
             { href: "/admin/products", label: "المنتجات" },
             { href: "/admin/categories", label: "الأقسام" },
+            { href: "/admin/shipping", label: "الشحن" },
             { href: "/admin/settings", label: "الإعدادات" },
             { href: "/admin/password", label: "كلمة المرور" },
           ].map((link) => (
@@ -32,7 +33,7 @@ export default function AdminBar() {
               key={link.href}
               href={link.href}
               className={`flex min-h-10 items-center rounded-full px-3 py-2 text-xs font-bold transition sm:px-4 sm:py-1.5 ${
-                pathname === link.href ? "bg-[var(--gold)] text-[#1b2a20]" : "hover:bg-white/10"
+                pathname === link.href ? "bg-[var(--gold)] text-[#16233d]" : "hover:bg-white/10"
               }`}
             >
               {link.label}

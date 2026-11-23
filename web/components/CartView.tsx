@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/CartProvider";
 import { imageSrc, money } from "@/lib/store";
+import { shippingFeeFor } from "@/lib/shipping";
 import { PAYMENT_LABELS } from "@/lib/constants";
 import type { Governorate, PaymentMethod, Product } from "@/lib/types";
 
@@ -12,7 +13,9 @@ type Props = {
   governorates: Governorate[];
   paymentMethods: PaymentMethod[];
   currency: string;
+  freeShippingEnabled: boolean;
   freeShippingThreshold: number;
+  defaultShippingFee: number;
 };
 
 export default function CartView({
@@ -20,7 +23,9 @@ export default function CartView({
   governorates,
   paymentMethods,
   currency,
+  freeShippingEnabled,
   freeShippingThreshold,
+  defaultShippingFee,
 }: Props) {
   const { items, setQuantity, remove, clear } = useCart();
   const [name, setName] = useState("");
@@ -46,9 +51,17 @@ export default function CartView({
   );
 
   const subtotal = lines.reduce((sum, line) => sum + line.product.price * line.quantity, 0);
-  const shipping = subtotal >= freeShippingThreshold ? 0 : (governorates.find((g) => g.name === governorate)?.fee ?? 0);
+  const shipping = shippingFeeFor(subtotal, governorate, {
+    governorates,
+    freeShippingEnabled,
+    freeShippingThreshold,
+    defaultShippingFee,
+  });
   const total = subtotal + shipping;
-  const remaining = Math.max(0, freeShippingThreshold - subtotal);
+  const remaining =
+    freeShippingEnabled && freeShippingThreshold > 0
+      ? Math.max(0, freeShippingThreshold - subtotal)
+      : 0;
 
   async function submitOrder(event: React.FormEvent) {
     event.preventDefault();
@@ -156,11 +169,13 @@ export default function CartView({
             </div>
           ))}
 
-          <div className="rounded-[20px] border border-dashed border-[var(--gold)] bg-[var(--gold-soft)]/40 px-5 py-4 text-xs font-bold text-[#6b5427]">
-            {remaining > 0
-              ? `أضف قطع بقيمة ${money(remaining, currency)} واحصل على شحن مجاني 🎁`
-              : "🎊 حصلت على شحن مجاني!"}
-          </div>
+          {freeShippingEnabled && freeShippingThreshold > 0 ? (
+            <div className="rounded-[20px] border border-dashed border-[var(--gold)] bg-[var(--gold-soft)]/40 px-5 py-4 text-xs font-bold text-[#6b5427]">
+              {remaining > 0
+                ? `أضف قطع بقيمة ${money(remaining, currency)} واحصل على شحن مجاني 🎁`
+                : "🎊 حصلت على شحن مجاني!"}
+            </div>
+          ) : null}
         </div>
 
         {/* CHECKOUT */}
