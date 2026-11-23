@@ -188,13 +188,11 @@ export default function ProductDetail({ product, currency }: { product: Product;
             ) : null}
           </div>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            {["شحن لكل المحافظات", "دفع عند الاستلام", "استرجاع خلال 14 يوم"].map((label) => (
-              <div key={label} className="flex items-center gap-2 rounded-xl border border-[var(--line)] bg-white/60 px-3 py-3 text-[11px] font-bold">
-                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">✓</span>
-                {label}
-              </div>
-            ))}
+          <div className="mt-6">
+            <div className="flex items-center gap-2 rounded-xl border border-[var(--line)] bg-white/60 px-3 py-3 text-[11px] font-bold">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">✓</span>
+              دفع عند الاستلام
+            </div>
           </div>
 
           {details.length ? (
