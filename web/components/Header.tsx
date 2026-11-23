@@ -27,7 +27,7 @@ export default function Header({ storeName, storeNameEn }: Props) {
       <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[#f6f3ec]/85 backdrop-blur-xl">
         <div className="container-x flex h-[74px] items-center gap-4">
           <Link href="/" className="flex shrink-0 items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-[13px] bg-[var(--brand)] font-display text-xl text-[var(--gold)] shadow-lg shadow-[#0e3327]/20">
+            <span className="grid h-10 w-10 place-items-center rounded-[13px] bg-[var(--brand)] font-display text-xl text-[var(--gold)] shadow-lg shadow-[#1d2b4c]/20">
               E
             </span>
             <span className="leading-tight">

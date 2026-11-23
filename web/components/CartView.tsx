@@ -208,7 +208,7 @@ export default function CartView({
 
           <div className="mt-6 space-y-2 border-t border-[var(--line)] pt-5 text-sm">
             <div className="flex justify-between text-[var(--muted)]"><span>المجموع الفرعي</span><span>{money(subtotal, currency)}</span></div>
-            <div className="flex justify-between text-[var(--muted)]"><span>الشحن</span><span className={shipping === 0 ? "font-bold text-[#2f7a55]" : ""}>{shipping === 0 ? "مجاني" : money(shipping, currency)}</span></div>
+            <div className="flex justify-between text-[var(--muted)]"><span>الشحن</span><span className={shipping === 0 ? "font-bold text-[var(--success)]" : ""}>{shipping === 0 ? "مجاني" : money(shipping, currency)}</span></div>
             <div className="flex justify-between border-t border-[var(--line)] pt-3 text-base font-extrabold"><span>الإجمالي</span><span className="text-[var(--brand)]">{money(total, currency)}</span></div>
           </div>
 

@@ -229,7 +229,7 @@ export default function AdminProductsClient({
         </div>
         <div className="flex flex-wrap gap-2">
           <span className="rounded-full border border-[var(--line)] bg-white px-4 py-2 text-[11px] font-extrabold text-[var(--brand)]">{stats.all} منتج</span>
-          <span className="rounded-full border border-[#cfe8d9] bg-[#f1faf4] px-4 py-2 text-[11px] font-extrabold text-[#2f7a55]">{stats.active} متاح</span>
+          <span className="rounded-full border border-[var(--success-line)] bg-[var(--success-soft)] px-4 py-2 text-[11px] font-extrabold text-[var(--success)]">{stats.active} متاح</span>
           <span className="rounded-full border border-[#f2dfb5] bg-[#fff9ec] px-4 py-2 text-[11px] font-extrabold text-[#8a6a2f]">{stats.low} كمية منخفضة</span>
           <span className="rounded-full border border-[#f2cccc] bg-[#fff3f3] px-4 py-2 text-[11px] font-extrabold text-[var(--danger)]">{stats.out} نفد</span>
         </div>
@@ -398,7 +398,7 @@ export default function AdminProductsClient({
                       </button>
                     </div>
                     <span className={`mt-1 inline-block text-[9px] font-extrabold ${
-                      stock <= 0 ? "text-[var(--danger)]" : stock <= 5 ? "text-[#8a6a2f]" : "text-[#2f7a55]"
+                      stock <= 0 ? "text-[var(--danger)]" : stock <= 5 ? "text-[#8a6a2f]" : "text-[var(--success)]"
                     }`}>
                       {stock <= 0 ? "نفد من المخزون" : stock <= 5 ? `كمية منخفضة (${stock})` : `متوفر (${stock})`}
                     </span>

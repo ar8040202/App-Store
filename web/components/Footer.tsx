@@ -34,7 +34,7 @@ function WhatsAppIcon() {
 }
 
 function FooterLink({ href, children }: { href: string; children: ReactNode }) {
-  const className = "mb-1 flex min-h-10 items-center text-[13px] text-[#94a49a] hover:text-[var(--gold)]";
+  const className = "mb-1 flex min-h-10 items-center text-[13px] text-[#a3afc2] hover:text-[var(--gold)]";
   if (href.startsWith("/")) {
     return <Link href={href} className={className}>{children}</Link>;
   }
@@ -72,25 +72,25 @@ export default function Footer({ settings }: { settings: Settings }) {
   const credit = (settings.footer_credit || "").trim();
 
   return (
-    <footer className="mt-10 bg-[#0b1f19] text-[#cfd8d1]">
+    <footer className="mt-10 bg-[#16233d] text-[#d9dfe8]">
       <div className="container-x py-16 sm:py-20">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
           <div>
             <div className="flex items-center gap-3">
-              <span className="grid h-11 w-11 place-items-center rounded-[13px] bg-[var(--gold)] font-display text-2xl text-[#0b1f19]">
+              <span className="grid h-11 w-11 place-items-center rounded-[13px] bg-[var(--gold)] font-display text-2xl text-[#16233d]">
                 E
               </span>
               <span>
                 <strong className="block font-display text-2xl text-[#f7f2e7]">
                   {settings.store_name || "EMO STORE"}
                 </strong>
-                <small className="block text-[9px] font-extrabold tracking-[0.26em] text-[#7b8c81]">
+                <small className="block text-[9px] font-extrabold tracking-[0.26em] text-[#94a2ba]">
                   {settings.store_name_en || "EMO STORE"}
                 </small>
               </span>
             </div>
             {about ? (
-              <p className="mt-5 max-w-xs text-[13px] leading-8 text-[#94a49a]">{about}</p>
+              <p className="mt-5 max-w-xs text-[13px] leading-8 text-[#a3afc2]">{about}</p>
             ) : null}
             <div className="mt-6 flex gap-2">
               <a
@@ -152,7 +152,7 @@ export default function Footer({ settings }: { settings: Settings }) {
             <h4 className="mb-5 text-xs font-extrabold tracking-[0.18em] text-[#f7f2e7]">
               {settings.footer_contact_title || "تواصل معنا"}
             </h4>
-            <p className="text-[13px] leading-8 text-[#94a49a]">
+            <p className="text-[13px] leading-8 text-[#a3afc2]">
               {settings.store_address || "القاهرة، مصر"}
               <br />
               {settings.working_hours || "السبت – الخميس: 10 ص – 8 م"}
@@ -173,7 +173,7 @@ export default function Footer({ settings }: { settings: Settings }) {
         </div>
 
         {(copyright || credit) ? (
-          <div className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-[11px] text-[#76887c]">
+          <div className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 text-[11px] text-[#8e9bb2]">
             {copyright ? <span>{fillPlaceholders(copyright, tokens)}</span> : <span />}
             {credit ? <span>{fillPlaceholders(credit, tokens)}</span> : null}
           </div>

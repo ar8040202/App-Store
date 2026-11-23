@@ -26,7 +26,7 @@ export default function AdminNotice({
   return (
     <div
       role="status"
-      className="fixed bottom-6 start-6 z-[60] flex max-w-sm items-start gap-3 rounded-2xl border border-white/10 bg-[#0b1f19] px-4 py-3 text-xs font-bold text-white shadow-2xl"
+      className="fixed bottom-6 start-6 z-[60] flex max-w-sm items-start gap-3 rounded-2xl border border-white/10 bg-[#16233d] px-4 py-3 text-xs font-bold text-white shadow-2xl"
     >
       <span
         className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] ${

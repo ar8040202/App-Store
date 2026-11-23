@@ -140,7 +140,7 @@ export default function AdminCategoriesClient({ initial }: { initial: Category[]
           <span className="rounded-full border border-[var(--line)] bg-white px-4 py-2 text-[11px] font-extrabold text-[var(--brand)]">
             {items.length} قسم
           </span>
-          <span className="rounded-full border border-[#cfe8d9] bg-[#f1faf4] px-4 py-2 text-[11px] font-extrabold text-[#2f7a55]">
+          <span className="rounded-full border border-[var(--success-line)] bg-[var(--success-soft)] px-4 py-2 text-[11px] font-extrabold text-[var(--success)]">
             {activeCount} ظاهر
           </span>
         </div>
@@ -253,7 +253,7 @@ export default function AdminCategoriesClient({ initial }: { initial: Category[]
                       <span
                         className={`rounded-full px-2 py-0.5 text-[9px] font-extrabold ${
                           Boolean(item.is_active)
-                            ? "bg-[#e8f6ee] text-[#2f7a55]"
+                            ? "bg-[var(--success-soft)] text-[var(--success)]"
                             : "bg-black/5 text-[var(--muted)]"
                         }`}
                       >

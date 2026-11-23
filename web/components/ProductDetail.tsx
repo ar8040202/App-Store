@@ -109,7 +109,7 @@ export default function ProductDetail({ product, currency }: { product: Product;
             ) : null}
           </div>
 
-          <p className={`mt-3 text-xs font-extrabold ${soldOut ? "text-[var(--danger)]" : "text-[#2f7a55]"}`}>
+          <p className={`mt-3 text-xs font-extrabold ${soldOut ? "text-[var(--danger)]" : "text-[var(--success)]"}`}>
             {soldOut ? "نفد المخزون حالياً" : `متوفر · ${product.stock} قطعة`}
           </p>
 

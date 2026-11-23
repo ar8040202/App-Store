@@ -84,7 +84,7 @@ export function AdminImageField({
           <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-[var(--brand-soft)]">
             <img src={imageSrc(value)} alt="معاينة الصورة" className="h-full w-full object-cover" />
           </div>
-          <span className="flex-1 truncate text-[10px] font-bold text-[#2f7a55]">✓ تم رفع الصورة</span>
+          <span className="flex-1 truncate text-[10px] font-bold text-[var(--success)]">✓ تم رفع الصورة</span>
           <button
             type="button"
             onClick={() => onChange("")}

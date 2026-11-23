@@ -149,7 +149,7 @@ export default function AdminOrdersClient({
                     <button type="button" onClick={() => save(order)} disabled={saving === order.id} className="btn-dark !py-3 !text-xs">
                       {saving === order.id ? "جارٍ الحفظ…" : "حفظ الحالة"}
                     </button>
-                    {order.status === "cancelled" && order.stock_restored ? <span className="text-[11px] font-bold text-[#2f7a55]">✓ الكميات مرجّعة للمخزون</span> : null}
+                    {order.status === "cancelled" && order.stock_restored ? <span className="text-[11px] font-bold text-[var(--success)]">✓ الكميات مرجّعة للمخزون</span> : null}
                   </div>
                 </div>
               ) : null}

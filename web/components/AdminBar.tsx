@@ -14,7 +14,7 @@ export default function AdminBar() {
   }
 
   return (
-    <div className="border-b border-white/10 bg-[#0b1f19] text-white">
+    <div className="border-b border-white/10 bg-[#16233d] text-white">
       <div className="container-x flex flex-wrap items-center gap-x-4 gap-y-2 py-3 sm:min-h-16 sm:py-0">
         <span className="flex items-center gap-2 font-display text-lg">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-[var(--gold)] text-sm text-[var(--brand)]">E</span>

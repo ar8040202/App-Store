@@ -173,7 +173,7 @@ export default async function HomePage() {
       </section>
 
       {/* STORY BAND */}
-      <section className="grain relative mt-16 overflow-hidden bg-[#102b22] py-16 text-white sm:py-24">
+      <section className="grain relative mt-16 overflow-hidden bg-[#16233d] py-16 text-white sm:py-24">
         <div className="container-x relative">
           <div className="max-w-2xl">
             <span className="eyebrow">قصتنا</span>
