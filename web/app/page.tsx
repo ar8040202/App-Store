@@ -174,8 +174,8 @@ export default async function HomePage() {
 
       {/* STORY BAND */}
       <section className="grain relative mt-16 overflow-hidden bg-[#102b22] py-16 text-white sm:py-24">
-        <div className="container-x relative grid items-center gap-12 lg:grid-cols-2">
-          <div>
+        <div className="container-x relative">
+          <div className="max-w-2xl">
             <span className="eyebrow">قصتنا</span>
             <h2 className="display mt-5 text-3xl leading-relaxed sm:text-5xl">
               مش مجرد متجر…
@@ -186,19 +186,6 @@ export default async function HomePage() {
               بدأنا بفكرة بسيطة: قطع حلوة، خامات محترمة، وسعر ما يوجعش. بنختار كل قطعة بنفسنا، وبنجرّبها قبل ما توصلك، عشان تشرى وأنت مرتاح.
             </p>
             <Link href="/shop" className="btn-ghost mt-8">اكتشف التشكيلة</Link>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              ["+19", "قطعة أصلية"],
-              ["100%", "خامات مختارة"],
-              ["27", "محافظة"],
-              ["24/7", "دعم واتساب"],
-            ].map(([number, label]) => (
-              <div key={label} className="rounded-[22px] border border-white/10 bg-white/5 p-6 text-center backdrop-blur">
-                <strong className="display block text-3xl text-[var(--gold)] sm:text-4xl">{number}</strong>
-                <span className="mt-2 block text-[11px] text-white/60">{label}</span>
-              </div>
-            ))}
           </div>
         </div>
       </section>
