@@ -91,6 +91,14 @@ export function categoryName(id: number | null): string {
   return memory.categories.find((c) => c.id === id)?.name ?? "عام";
 }
 
+/** يربط كل منتج بقسمه عشان الفلترة واسم القسم يظهروا في المتجر. */
+function withCategories(products: Product[], categories: Category[]): Product[] {
+  return products.map((product) => ({
+    ...product,
+    category: categories.find((category) => category.id === product.category_id) ?? null,
+  }));
+}
+
 export async function getCatalog(): Promise<Catalog> {
   if (supabase) {
     const [products, categories, settings, governorates, paymentMethods] =
@@ -114,9 +122,13 @@ export async function getCatalog(): Promise<Catalog> {
           .order("sort_order"),
       ]);
 
+    const catalogCategories = (categories.data ?? []) as Category[];
     return {
-      products: (products.data ?? []) as Product[],
-      categories: (categories.data ?? []) as Category[],
+      products: withCategories(
+        (products.data ?? []) as Product[],
+        catalogCategories,
+      ),
+      categories: catalogCategories,
       settings: withContentDefaults(
         decodeSettings(
           Object.fromEntries(
@@ -132,9 +144,13 @@ export async function getCatalog(): Promise<Catalog> {
     };
   }
 
+  const activeCategories = clone(memory.categories).filter((c) => c.is_active);
   return {
-    products: clone(memory.products).filter((p) => p.is_active),
-    categories: clone(memory.categories).filter((c) => c.is_active),
+    products: withCategories(
+      clone(memory.products).filter((p) => p.is_active),
+      activeCategories,
+    ),
+    categories: activeCategories,
     settings: withContentDefaults(clone(memory.settings)),
     governorates: clone(memory.governorates).filter((g) => g.is_active),
     paymentMethods: clone(memory.paymentMethods).filter((p) => p.is_active),
