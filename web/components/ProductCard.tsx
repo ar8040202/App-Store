@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useCart } from "@/components/CartProvider";
 import { imageSrc, money } from "@/lib/store";
 import type { Product } from "@/lib/types";
@@ -28,16 +29,22 @@ export default function ProductCard({
   return (
     <article className="group flex min-w-0 flex-col">
       <div className="product-media relative aspect-[3/4] overflow-hidden rounded-[22px] bg-[#ece6da]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={image}
-          alt={product.name}
-          className="h-full w-full object-cover"
-          loading="lazy"
-        />
-        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/25 to-transparent" />
+        <Link
+          href={`/product/${encodeURIComponent(product.slug)}`}
+          aria-label={`عرض تفاصيل ${product.name}`}
+          className="block h-full w-full"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={image}
+            alt={product.name}
+            className="h-full w-full object-cover"
+            loading="lazy"
+          />
+        </Link>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/25 to-transparent" />
 
-        <div className="absolute start-3 top-3 flex flex-col gap-1.5">
+        <div className="pointer-events-none absolute start-3 top-3 flex flex-col gap-1.5">
           {product.is_featured ? (
             <span className="rounded-full bg-[var(--brand)] px-3 py-1.5 text-[10px] font-extrabold text-white">الأكثرطلبًا</span>
           ) : (
@@ -53,7 +60,7 @@ export default function ProductCard({
           onClick={handleAdd}
           disabled={soldOut}
           aria-label={`أضف ${product.name} للسلة`}
-          className={`absolute bottom-3 start-3 grid h-11 w-11 place-items-center rounded-full shadow-lg transition-all duration-300 ${
+          className={`absolute bottom-3 start-3 z-10 grid h-11 w-11 place-items-center rounded-full shadow-lg transition-all duration-300 ${
             added
               ? "scale-110 bg-[var(--gold)] text-[#2b210e]"
               : "bg-white/95 text-[var(--brand)] hover:bg-[var(--brand)] hover:text-white"
@@ -73,7 +80,12 @@ export default function ProductCard({
 
       <div className="px-1 pt-4">
         <p className="text-[10px] font-extrabold tracking-[0.1em] text-[var(--muted)]">{category}</p>
-        <h3 className="mt-1 line-clamp-1 text-sm font-extrabold text-[var(--ink)] sm:text-[15px]">{product.name}</h3>
+        <Link
+          href={`/product/${encodeURIComponent(product.slug)}`}
+          className="mt-1 line-clamp-1 text-sm font-extrabold text-[var(--ink)] hover:text-[var(--brand)] sm:text-[15px]"
+        >
+          {product.name}
+        </Link>
         <div className="mt-1.5 flex items-center gap-1 text-[var(--gold)]">
           <span className="text-xs tracking-tight">★★★★★</span>
           <span className="text-[10px] font-semibold text-[var(--muted)]">
