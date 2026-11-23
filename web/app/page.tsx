@@ -55,20 +55,6 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="mt-12 grid max-w-lg grid-cols-3 divide-x divide-x-reverse divide-white/15 border-t border-white/15 pt-7 text-center">
-              <div>
-                <strong className="display block text-2xl text-[var(--gold)] sm:text-3xl">+{catalog.products.length}</strong>
-                <span className="mt-1 block text-[10px] text-white/55 sm:text-xs">قطعة مختارة</span>
-              </div>
-              <div>
-                <strong className="display block text-2xl text-[var(--gold)] sm:text-3xl">27</strong>
-                <span className="mt-1 block text-[10px] text-white/55 sm:text-xs">محافظة تغطيها</span>
-              </div>
-              <div>
-                <strong className="display block text-2xl text-[var(--gold)] sm:text-3xl">14</strong>
-                <span className="mt-1 block text-[10px] text-white/55 sm:text-xs">يوم للاسترجاع</span>
-              </div>
-            </div>
           </div>
 
           <div className="fade-up-2 relative mx-auto w-full max-w-[480px]">
